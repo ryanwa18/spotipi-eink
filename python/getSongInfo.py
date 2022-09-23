@@ -18,7 +18,7 @@ def getSongInfo(username, token_path):
          print("No song playing")
       else:  
         song = result["item"]["name"]
-        artist = result["item"]["artist"]
+        artist = result["item"]["artists"][0]["name"]
         imageURL = result["item"]["album"]["images"][0]["url"]
         print(song)
         return [song, imageURL, artist]
