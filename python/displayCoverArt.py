@@ -6,9 +6,9 @@ from getSongInfo import getSongInfo
 import requests
 from io import BytesIO
 from PIL import Image
-from rgbmatrix import RGBMatrix, RGBMatrixOptions
-import sys,os
+import sys,os,re
 import configparser
+from bs4 import BeautifulSoup
 
 if len(sys.argv) > 2:
     username = sys.argv[1]
@@ -30,41 +30,40 @@ if len(sys.argv) > 2:
     config = configparser.ConfigParser()
     config.read(filename)
 
-    options = RGBMatrixOptions()
-    options.rows = int(config['DEFAULT']['rows'])
-    options.cols = int(config['DEFAULT']['columns'])
-    options.chain_length = int(config['DEFAULT']['chain_length'])
-    options.parallel = int(config['DEFAULT']['parallel'])
-    options.hardware_mapping = config['DEFAULT']['hardware_mapping']
-    options.gpio_slowdown = int(config['DEFAULT']['gpio_slowdown'])
-    options.brightness = int(config['DEFAULT']['brightness'])
-    options.limit_refresh_rate_hz = int(config['DEFAULT']['refresh_rate'])
-
     default_image = os.path.join(dir, config['DEFAULT']['default_image'])
-    print(default_image)
-    matrix = RGBMatrix(options = options)
 
     prevSong    = ""
     currentSong = ""
-
     try:
       while True:
         try:
           imageURL = getSongInfo(username, token_path)[1]
+          songName = getSongInfo(username, token_path)[0]
+          artistName = getSongInfo(username, token_path)[2]
           currentSong = imageURL
 
           if ( prevSong != currentSong ):
             response = requests.get(imageURL)
             image = Image.open(BytesIO(response.content))
-            image.thumbnail((matrix.width, matrix.height), Image.ANTIALIAS)
-            matrix.SetImage(image.convert('RGB'))
+            image.thumbnail((250, 250), Image.ANTIALIAS)
             prevSong = currentSong
+
+            # Edit html file
+            with open('/home/pi/workspace/spotipi-eink/python/client/spotipi.html') as html_file:
+              soup = BeautifulSoup(html_file.read(), features='html.parser')
+              soup.h1.string.replace_with(songName)
+              soup.image['src'] = imageURL
+              soup.body['style'] = "background-image: url('" + imageURL + "')"
+              soup.h2.string.replace_with(artistName)
+              new_text = soup.prettify()
+            
+            with open('/home/pi/workspace/spotipi-eink/python/client/spotipi.html', mode='w') as new_html_file:
+              new_html_file.write(new_text)
 
           time.sleep(1)
         except Exception as e:
           image = Image.open(default_image)
-          image.thumbnail((matrix.width, matrix.height), Image.ANTIALIAS)
-          matrix.SetImage(image.convert('RGB'))
+          image.thumbnail((250, 250), Image.ANTIALIAS)
           print(e)
           time.sleep(1)
     except KeyboardInterrupt:
