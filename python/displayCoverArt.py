@@ -9,6 +9,8 @@ from PIL import Image
 import sys,os,re
 import configparser
 from bs4 import BeautifulSoup
+import urllib.request
+import subprocess
 
 if len(sys.argv) > 2:
     username = sys.argv[1]
@@ -38,6 +40,8 @@ if len(sys.argv) > 2:
       while True:
         try:
           imageURL = getSongInfo(username, token_path)[1]
+
+          urllib.request.urlretrieve(imageURL, "/home/pi/workspace/spotipi-eink/python/client/album_cover.png")
           songName = getSongInfo(username, token_path)[0]
           artistName = getSongInfo(username, token_path)[2]
           currentSong = imageURL
@@ -59,6 +63,8 @@ if len(sys.argv) > 2:
             
             with open('/home/pi/workspace/spotipi-eink/python/client/spotipi.html', mode='w') as new_html_file:
               new_html_file.write(new_text)
+
+            print(subprocess.check_call(['/home/pi/workspace/spotipi-eink/python/client/screenshot.sh'], shell=True))
 
           time.sleep(1)
         except Exception as e:
