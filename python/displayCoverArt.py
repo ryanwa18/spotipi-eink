@@ -66,7 +66,7 @@ if len(sys.argv) > 2:
 
             print(subprocess.check_call(['/home/pi/workspace/spotipi-eink/python/client/screenshot.sh'], shell=True))
 
-          time.sleep(1)
+          time.sleep(3)
         except Exception as e:
           image = Image.open(default_image)
           image.thumbnail((250, 250), Image.ANTIALIAS)
