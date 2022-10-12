@@ -56,8 +56,8 @@ if len(sys.argv) > 2:
             with open('/home/pi/workspace/spotipi-eink/python/client/spotipi.html') as html_file:
               soup = BeautifulSoup(html_file.read(), features='html.parser')
               soup.h1.string.replace_with(songName)
-              soup.image['src'] = imageURL
-              soup.body['style'] = "background-image: url('" + imageURL + "')"
+            #  soup.image['src'] = imageURL
+            #  soup.body['style'] = "background-image: url('" + imageURL + "')"
               soup.h2.string.replace_with(artistName)
               new_text = soup.prettify()
             
@@ -65,11 +65,9 @@ if len(sys.argv) > 2:
               new_html_file.write(new_text)
 
             print(subprocess.check_call(['/home/pi/workspace/spotipi-eink/python/client/screenshot.sh'], shell=True))
-
-          time.sleep(3)
+          
+          time.sleep(1)
         except Exception as e:
-          image = Image.open(default_image)
-          image.thumbnail((250, 250), Image.ANTIALIAS)
           print(e)
           time.sleep(1)
     except KeyboardInterrupt:
