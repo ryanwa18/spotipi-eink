@@ -40,8 +40,8 @@ if len(sys.argv) > 2:
       while True:
         try:
           imageURL = getSongInfo(username, token_path)[1]
-
-          urllib.request.urlretrieve(imageURL, "/home/pi/workspace/spotipi-eink/python/client/album_cover.png")
+          album_cover_path = os.path.join(dir, 'client/album_cover.png')
+          urllib.request.urlretrieve(imageURL, album_cover_path)
           songName = getSongInfo(username, token_path)[0]
           artistName = getSongInfo(username, token_path)[2]
           currentSong = imageURL
@@ -52,8 +52,10 @@ if len(sys.argv) > 2:
             image.thumbnail((250, 250), Image.ANTIALIAS)
             prevSong = currentSong
 
+            htmlFilePath = os.path.join(dir, 'client/spotipi.html')
+
             # Edit html file
-            with open('/home/pi/workspace/spotipi-eink/python/client/spotipi.html') as html_file:
+            with open(htmlFilePath) as html_file:
               soup = BeautifulSoup(html_file.read(), features='html.parser')
               soup.h1.string.replace_with(songName)
             #  soup.image['src'] = imageURL
@@ -61,10 +63,13 @@ if len(sys.argv) > 2:
               soup.h2.string.replace_with(artistName)
               new_text = soup.prettify()
             
-            with open('/home/pi/workspace/spotipi-eink/python/client/spotipi.html', mode='w') as new_html_file:
+            with open(htmlFilePath, mode='w') as new_html_file:
               new_html_file.write(new_text)
+            
+            screenshotFilePath = os.path.join(dir, 'client/screenshot.sh')
+            install_path = os.path.dirname(dir)
 
-            print(subprocess.check_call(['/home/pi/workspace/spotipi-eink/python/client/screenshot.sh'], shell=True))
+            print(subprocess.check_call([screenshotFilePath, install_path]))
           
           time.sleep(1)
         except Exception as e:

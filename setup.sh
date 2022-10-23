@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Ensure packages are installed:"
-sudo apt-get install python3-numpy git
+sudo apt-get install python3-numpy git firefox-esr
 
 echo "Clone repositories:"
 git clone https://github.com/ryanwa18/spotipi-eink
