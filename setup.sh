@@ -1,7 +1,14 @@
 #!/bin/bash
-
 echo "Ensure packages are installed:"
-sudo apt-get install python3-numpy
+sudo apt-get install python3-numpy git
+
+echo "Clone repositories:"
+git clone https://github.com/ryanwa18/spotipi-eink
+cd spotipi-eink
+git clone https://github.com/pimoroni/inky
+
+echo "Add font to system:"
+sudo cp ./fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
 
 echo "Installing spotipy library:"
 pip install spotipy --upgrade
