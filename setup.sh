@@ -37,6 +37,7 @@ export SPOTIPY_REDIRECT_URI=$spotify_redirect_uri
 echo "Enter your spotify username:"
 read spotify_username
 
+cd spotipi-eink
 python python/generateToken.py $spotify_username
 
 echo
