@@ -37,7 +37,6 @@ export SPOTIPY_REDIRECT_URI=$spotify_redirect_uri
 echo "Enter your spotify username:"
 read spotify_username
 
-cd spotipi-eink
 python python/generateToken.py $spotify_username
 
 echo
@@ -57,7 +56,7 @@ echo "...done"
 
 echo "Creating spotipi service:"
 sudo cp ./config/spotipi.service /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path} < /dev/zero &> /dev/null &" /etc/systemd/system/spotipi.service
+sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi.service
 sudo mkdir /etc/systemd/system/spotipi.service.d
 spotipi_env_path=/etc/systemd/system/spotipi.service.d/spotipi_env.conf
 sudo touch $spotipi_env_path
