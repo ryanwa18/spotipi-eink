@@ -49,7 +49,7 @@ if len(sys.argv) > 2:
           if ( prevSong != currentSong ):
             response = requests.get(imageURL)
             image = Image.open(BytesIO(response.content))
-            image.thumbnail((250, 250), Image.ANTIALIAS)
+            image.thumbnail((250, 250), Image.Resampling.LANCZOS)
             prevSong = currentSong
 
             htmlFilePath = os.path.join(dir, 'client/spotipi.html')
