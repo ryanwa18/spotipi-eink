@@ -5,7 +5,7 @@ sudo apt-get install python3-numpy git firefox-esr
 echo "Clone repositories:"
 git clone https://github.com/ryanwa18/spotipi-eink
 cd spotipi-eink
-git clone https://github.com/pimoroni/inky
+git submodule init
 
 echo "Add font to system:"
 sudo cp ./fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
@@ -48,25 +48,25 @@ read spotify_token_path
 
 install_path=$(pwd)
 
-echo "Removing spotipi service if it exists:"
-sudo systemctl stop spotipi
-sudo rm -rf /etc/systemd/system/spotipi.*
+echo "Removing spotipi-eink service if it exists:"
+sudo systemctl stop spotipi-eink
+sudo rm -rf /etc/systemd/system/spotipi-eink.*
 sudo systemctl daemon-reload
 echo "...done"
 
-echo "Creating spotipi service:"
-sudo cp ./config/spotipi.service /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi.service
-sudo mkdir /etc/systemd/system/spotipi.service.d
-spotipi_env_path=/etc/systemd/system/spotipi.service.d/spotipi_env.conf
+echo "Creating spotipi-eink service:"
+sudo cp ./config/spotipi-eink.service /etc/systemd/system/
+sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi-eink.service
+sudo mkdir /etc/systemd/system/spotipi-eink.service.d
+spotipi_env_path=/etc/systemd/system/spotipi-eink.service.d/spotipi-eink_env.conf
 sudo touch $spotipi_env_path
 sudo echo "[Service]" >> $spotipi_env_path
 sudo echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" >> $spotipi_env_path
 sudo echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" >> $spotipi_env_path
 sudo echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" >> $spotipi_env_path
 sudo systemctl daemon-reload
-sudo systemctl start spotipi
-sudo systemctl enable spotipi
+sudo systemctl start spotipi-eink
+sudo systemctl enable spotipi-eink
 echo "...done"
 
 echo "SETUP IS COMPLETE"

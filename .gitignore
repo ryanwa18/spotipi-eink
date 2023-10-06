@@ -1,4 +1,6 @@
 *.log
 *.png
 .cache
+*.pyc
+__pycache__
 inky/*

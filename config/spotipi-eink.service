@@ -1,0 +1,14 @@
+[Unit]
+Description=Spotipi eInk Display service
+
+[Service]
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=spotipi-eink
+LimitRTPRIO=99
+Restart=always
+RestartSec=3
+EnvironmentFile=/etc/systemd/system/spotipi-eink.service.d/spotipi-eink_env.conf
+
+[Install]
+WantedBy=multi-user.target
