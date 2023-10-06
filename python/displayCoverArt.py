@@ -3,14 +3,23 @@ import sys
 import logging
 from logging.handlers import RotatingFileHandler
 from getSongInfo import getSongInfo
-import requests
-from io import BytesIO
-from PIL import Image
-import sys,os,re
+import os
 import configparser
 from bs4 import BeautifulSoup
-import urllib.request
 import subprocess
+import urllib.request
+import shutil
+
+def update_html(html_file_path: str, song_name: str, artist_name: str):
+              # Edit html file
+            with open(html_file_path) as html_file:
+              soup = BeautifulSoup(html_file.read(), features='html.parser')
+              soup.h1.string.replace_with(song_name)
+              soup.h2.string.replace_with(artist_name)
+              new_text = soup.prettify()
+            # Write new html file
+            with open(html_file_path, mode='w') as new_html_file:
+              new_html_file.write(new_text)
 
 if len(sys.argv) > 2:
     username = sys.argv[1]
@@ -18,10 +27,10 @@ if len(sys.argv) > 2:
 
     # Configuration file    
     dir = os.path.dirname(__file__)
-    filename = os.path.join(dir, '../config/rgb_options.ini')
+    filename = os.path.join(dir, f'..{os.sep}config{os.sep}eink_options.ini')
 
     # Configures logger for storing song data    
-    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', filename='spotipy.log',level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename='spotipy.log', level=logging.INFO)
     logger = logging.getLogger('spotipy_logger')
 
     # automatically deletes logs more than 2000 bytes
@@ -32,52 +41,45 @@ if len(sys.argv) > 2:
     config = configparser.ConfigParser()
     config.read(filename)
 
-    default_image = os.path.join(dir, config['DEFAULT']['default_image'])
-
-    prevSong    = ""
-    currentSong = ""
+    # prep some vars befor entering service loop
+    song_prev = ''
+    song_current = ''
+    album_cover_path = os.path.join(dir, f'client{os.sep}album_cover.jpg')
+    screenshot_file_path = os.path.join(dir, f'client{os.sep}screenshot.sh')
+    install_path = os.path.dirname(dir)
+    display_res = f"{config['DEFAULT']['width']},{config['DEFAULT']['height']}"
+    html_file_path = os.path.join(dir, f'client{os.sep}spotipi-eink.html')
     try:
       while True:
         try:
-          imageURL = getSongInfo(username, token_path)[1]
-          album_cover_path = os.path.join(dir, 'client/album_cover.png')
-          urllib.request.urlretrieve(imageURL, album_cover_path)
-          songName = getSongInfo(username, token_path)[0]
-          artistName = getSongInfo(username, token_path)[2]
-          currentSong = imageURL
-
-          if ( prevSong != currentSong ):
-            response = requests.get(imageURL)
-            image = Image.open(BytesIO(response.content))
-            image.thumbnail((250, 250), Image.Resampling.LANCZOS)
-            prevSong = currentSong
-
-            htmlFilePath = os.path.join(dir, 'client/spotipi.html')
-
-            # Edit html file
-            with open(htmlFilePath) as html_file:
-              soup = BeautifulSoup(html_file.read(), features='html.parser')
-              soup.h1.string.replace_with(songName)
-            #  soup.image['src'] = imageURL
-            #  soup.body['style'] = "background-image: url('" + imageURL + "')"
-              soup.h2.string.replace_with(artistName)
-              new_text = soup.prettify()
-            
-            with open(htmlFilePath, mode='w') as new_html_file:
-              new_html_file.write(new_text)
-            
-            screenshotFilePath = os.path.join(dir, 'client/screenshot.sh')
-            install_path = os.path.dirname(dir)
-
-            print(subprocess.check_call([screenshotFilePath, install_path]))
-          
+          song_request = getSongInfo(username, token_path)
+          if song_request:
+            song_name = song_request[0]
+            song_current = song_request[1]
+            artist_name = song_request[2]
+          if not song_request:
+            if song_prev != 'NO_SONG':
+              # copy the default logo as cover.
+              shutil.copyfile(os.path.join(dir, f'client{os.sep}static{os.sep}default.jpg'), album_cover_path)
+              update_html(html_file_path, 'No song playing', 'spotipi-eink')
+              # set fake song name to updae only once if no song is playing.
+              song_prev = 'NO_SONG'
+              song_current = 'NO_SONG'
+              # Update display
+              print(subprocess.check_call([screenshot_file_path, install_path, display_res]))
+          if song_prev != song_current:
+            # download cover
+            urllib.request.urlretrieve(song_current, album_cover_path)
+            song_prev = song_current
+            update_html(html_file_path, song_name, artist_name)
+            # Update display
+            print(subprocess.check_call([screenshot_file_path, install_path, display_res]))
           time.sleep(1)
         except Exception as e:
-          print(e)
+          print(f"Error: {e}")
           time.sleep(1)
     except KeyboardInterrupt:
       sys.exit(0)
-
 else:
-    print("Usage: %s username" % (sys.argv[0],))
+    print(f"Usage: {sys.argv[0]} username token_path")
     sys.exit()
