@@ -30,7 +30,7 @@ if len(sys.argv) > 2:
     filename = os.path.join(dir, f'..{os.sep}config{os.sep}eink_options.ini')
 
     # Configures logger for storing song data    
-    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename='spotipy.log',level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename='spotipy.log', level=logging.INFO)
     logger = logging.getLogger('spotipy_logger')
 
     # automatically deletes logs more than 2000 bytes
