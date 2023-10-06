@@ -13,7 +13,7 @@ echo "Init git submodules"
 git submodule init
 
 echo "Add font to system:"
-sudo cp ./fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
+sudo cp .pytho/client/static/fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
 
 echo "Installing spotipy library:"
 pip3 install spotipy --upgrade
@@ -90,7 +90,7 @@ do
     esac
 done
 
-if [ -f "/etc/systemd/system/spotipi-eink.service" ]
+if [ -f "/etc/systemd/system/spotipi-eink.service" ]; then
     echo
     echo "Removing spotipi-eink service if it exists:"
     sudo systemctl stop spotipi-eink
