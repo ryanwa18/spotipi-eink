@@ -1,6 +1,11 @@
 # Spotipi E-Ink
 ## Overview
-This project is to display information on a 4", 5.7" or 7,3" e-ink from the Spotify web api. Project [Youtube Video](https://www.youtube.com/watch?v=uQYIAYa27ds)
+This project is to display information on a 4", 5.7" or 7,3" e-ink from the Spotify web api. Project [Youtube Video](https://www.youtube.com/watch?v=uQYIAYa27ds)</br>
+Optional it will install a service to support buttons actions. Buttton functions:
+* Button A - next track
+* Button B - previos track
+* Button C - play/pause
+* Button D - toggel repeate order: track, context, off
 
 ## Getting Started
 * Create a new application within the [Spotify developer dashboard](https://developer.spotify.com/dashboard/applications)
@@ -14,13 +19,13 @@ sudo raspi-config
 
 * Download the install script
 ```
-wget https://raw.githubusercontent.com/ryanwa18/spotipi-eink/main/setup.sh
+wget https://raw.githubusercontent.com/Gabbajoe/spotipi-eink/main/setup.sh
 chmod +x setup.sh
 ```
 
 * Install the software: 
 ```
-sudo bash setup.sh
+bash setup.sh
 ```
 
 ## Components: 

@@ -1,0 +1,14 @@
+[Unit]
+Description=Spotipi eInk Display Buttons service
+
+[Service]
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=spotipi-eink-buttons
+LimitRTPRIO=99
+Restart=always
+RestartSec=3
+EnvironmentFile=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
+
+[Install]
+WantedBy=multi-user.target

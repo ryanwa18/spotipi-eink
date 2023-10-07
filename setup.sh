@@ -2,18 +2,18 @@
 echo "Update Packages list"
 sudo apt update
 echo "Update to the latest"
-sudo apt upgrade
+sudo apt -y upgrade
 echo "Ensure packages are installed:"
 sudo apt-get install python3-pip python3-numpy git firefox-esr
 
 echo "Clone spotipy-eink git"
-git clone https://github.com/ryanwa18/spotipi-eink
+git clone https://github.com/Gabbajoe/spotipi-eink
 cd spotipi-eink
 echo "Init git submodules"
 git submodule init
 
 echo "Add font to system:"
-sudo cp .pytho/client/static/fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
+sudo cp .python/client/static/fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
 
 echo "Installing spotipy library:"
 pip3 install spotipy --upgrade
@@ -26,9 +26,6 @@ pip3 install pillow --upgrade
 
 echo "Installing inky impression libraries:"
 pip3 install inky[rpi,example-depends]
-
-echo "Remove numpy:"
-pip3 uninstall numpy
 
 echo "Enter your Spotify Client ID:"
 read spotify_client_id
@@ -92,7 +89,7 @@ done
 
 if [ -f "/etc/systemd/system/spotipi-eink.service" ]; then
     echo
-    echo "Removing spotipi-eink service if it exists:"
+    echo "Removing spotipi-eink service:"
     sudo systemctl stop spotipi-eink
     sudo rm -rf /etc/systemd/system/spotipi-eink.*
     sudo systemctl daemon-reload
@@ -101,7 +98,7 @@ fi
 echo
 echo "Creating spotipi-eink service:"
 sudo cp ./config/spotipi-eink.service /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi-eink.service
+sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi-eink.service
 sudo mkdir /etc/systemd/system/spotipi-eink.service.d
 spotipi_env_path=/etc/systemd/system/spotipi-eink.service.d/spotipi-eink_env.conf
 sudo touch $spotipi_env_path
@@ -113,5 +110,34 @@ sudo systemctl daemon-reload
 sudo systemctl start spotipi-eink
 sudo systemctl enable spotipi-eink
 echo "...done"
+echo
+
+read -p "Do you want to install the buttons action service? (y/Y) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    if [ -f "/etc/systemd/system/spotipi-eink-buttons.service" ]; then
+        echo
+        echo "Removing spotipi-eink-buttons service:"
+        sudo systemctl stop spotipi-eink-buttons
+        sudo rm -rf /etc/systemd/system/spotipi-eink-buttons.*
+        sudo systemctl daemon-reload
+        echo "...done"
+    fi
+    echo
+    echo "Creating spotipi-eink-buttons service:"
+    sudo cp ./config/spotipi-eink-buttons.service /etc/systemd/system/
+    sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/buttonActions.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo mkdir /etc/systemd/system/spotipi-eink-buttons.service.d
+    spotipi_env_path=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
+    sudo touch $spotipi_env_path
+    sudo echo "[Service]" >> $spotipi_env_path
+    sudo echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" >> $spotipi_env_path
+    sudo echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" >> $spotipi_env_path
+    sudo echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" >> $spotipi_env_path
+    sudo systemctl daemon-reload
+    sudo systemctl start spotipi-eink-buttons
+    sudo systemctl enable spotipi-eink-buttons
+    echo "...done"
+fi
 echo
 echo "SETUP IS COMPLETE"
