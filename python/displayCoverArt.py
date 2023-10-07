@@ -30,11 +30,13 @@ if len(sys.argv) > 2:
     filename = os.path.join(dir, f'..{os.sep}config{os.sep}eink_options.ini')
 
     # Configures logger for storing song data    
-    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename='spotipy.log', level=logging.INFO)
+    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename=os.path.join(dir, 'spotipy.log'), level=logging.INFO)
+
+    #logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename='/var/log/spotipy.log', level=logging.INFO)
     logger = logging.getLogger('spotipy_logger')
 
     # automatically deletes logs more than 2000 bytes
-    handler = RotatingFileHandler('spotipy.log', maxBytes=2000,  backupCount=3)
+    handler = RotatingFileHandler(os.path.join(dir, 'spotipy.log'), maxBytes=2000,  backupCount=3)
     logger.addHandler(handler)
 
     # Configuration for the matrix

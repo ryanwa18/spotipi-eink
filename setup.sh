@@ -5,7 +5,7 @@ echo "Update to the latest"
 sudo apt -y upgrade
 echo "Ensure packages are installed:"
 sudo apt-get install python3-pip python3-numpy git firefox-esr
-
+echo
 if [ -d "spotipi-eink" ]; then
     echo "Old installation found deleting it"
     sudo rm -rf spotipi-eink
@@ -101,10 +101,15 @@ if [ -f "/etc/systemd/system/spotipi-eink.service" ]; then
     sudo systemctl daemon-reload
     echo "...done"
 fi
+
+UID_TO_USE=$(id -u)
+GID_TO_USE=$(id -g)
 echo
 echo "Creating spotipi-eink service:"
 sudo cp ./config/spotipi-eink.service /etc/systemd/system/
 sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/displayCoverArt.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi-eink.service
+sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink.service
+sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink.service
 sudo mkdir /etc/systemd/system/spotipi-eink.service.d
 spotipi_env_path=/etc/systemd/system/spotipi-eink.service.d/spotipi-eink_env.conf
 sudo touch $spotipi_env_path
@@ -133,6 +138,8 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo "Creating spotipi-eink-buttons service:"
     sudo cp ./config/spotipi-eink-buttons.service /etc/systemd/system/
     sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/buttonActions.py ${spotify_username} ${spotify_token_path}" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
     sudo mkdir /etc/systemd/system/spotipi-eink-buttons.service.d
     spotipi_buttons_env_path=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
     sudo touch $spotipi_buttons_env_path
