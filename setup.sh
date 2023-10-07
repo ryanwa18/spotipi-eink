@@ -13,7 +13,7 @@ echo "Init git submodules"
 git submodule init
 
 echo "Add font to system:"
-sudo cp .pytho/client/static/fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
+sudo cp .python/client/static/fonts/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
 
 echo "Installing spotipy library:"
 pip3 install spotipy --upgrade
