@@ -2,8 +2,6 @@
 Description=Spotipi eInk Display service
 
 [Service]
-StandardOutput=syslog
-StandardError=syslog
 SyslogIdentifier=spotipi-eink
 LimitRTPRIO=99
 Restart=always

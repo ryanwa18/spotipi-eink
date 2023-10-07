@@ -9,15 +9,17 @@ sudo apt-get install python3-pip python3-numpy git firefox-esr
 if [ -d "spotipi-eink" ]; then
     echo "Old installation found deleting it"
     sudo rm -rf spotipi-eink
+fi
 echo
 echo "Clone spotipy-eink git"
-git clone https://github.com/Gabbajoe/spotipi-eink
+git clone --recurse-submodules https://github.com/Gabbajoe/spotipi-eink
 cd spotipi-eink
-echo "Init git submodules"
-git submodule init
 
 echo "Add font to system:"
-sudo cp .python/client/static/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
+if ! [ -d "/usr/share/fonts/opentype/CircularStd-Bold" ]; then
+    sudo mkdir -p /usr/share/fonts/opentype/CircularStd-Bold
+fi
+sudo cp ./python/client/static/CircularStd-Bold.otf /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
 
 echo "Installing spotipy library:"
 pip3 install spotipy --upgrade
@@ -106,10 +108,10 @@ sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/displayC
 sudo mkdir /etc/systemd/system/spotipi-eink.service.d
 spotipi_env_path=/etc/systemd/system/spotipi-eink.service.d/spotipi-eink_env.conf
 sudo touch $spotipi_env_path
-echo "[Service]" | sudo tee -a $spotipi_env_path
-echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" | sudo tee -a $spotipi_env_path
-echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" | sudo tee -a $spotipi_env_path
-echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" | sudo tee -a $spotipi_env_path
+echo "[Service]" | sudo tee -a $spotipi_env_path > /dev/null
+echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" | sudo tee -a $spotipi_env_path > /dev/null
+echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" | sudo tee -a $spotipi_env_path > /dev/null
+echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" | sudo tee -a $spotipi_env_path > /dev/null
 sudo systemctl daemon-reload
 sudo systemctl start spotipi-eink
 sudo systemctl enable spotipi-eink
@@ -134,10 +136,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo mkdir /etc/systemd/system/spotipi-eink-buttons.service.d
     spotipi_buttons_env_path=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
     sudo touch $spotipi_buttons_env_path
-    echo "[Service]" | sudo tee -a $spotipi_buttons_env_path
-    echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" | sudo tee -a $spotipi_buttons_env_path
-    echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" | sudo tee -a $spotipi_buttons_env_path
-    echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" | sudo tee -a $spotipi_buttons_env_path
+    echo "[Service]" | sudo tee -a $spotipi_buttons_env_path > /dev/null
+    echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
+    echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
+    echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
     sudo systemctl daemon-reload
     sudo systemctl start spotipi-eink-buttons
     sudo systemctl enable spotipi-eink-buttons
