@@ -6,3 +6,4 @@ __pycache__
 .vscode/settings.json
 config/*
 client/*
+/config/eink_options.ini

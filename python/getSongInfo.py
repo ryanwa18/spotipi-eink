@@ -11,7 +11,6 @@ def getSongInfo(username: str, token_path:str) -> list:
       if result is None:
          return []
       else:
-        print(result)
         song = result["item"]["name"]
         artist = result["item"]["artists"][0]["name"]
         # artist_uri = result["item"]["artists"][0]["uri"]
