@@ -4,6 +4,7 @@ import spotipy.util as util
 import signal
 import RPi.GPIO as GPIO
 
+current_state = 'context'
 
 def get_state(current_state:str) -> str:
     states = ['track', 'context', 'off']
@@ -40,7 +41,6 @@ if len(sys.argv) > 2:
     GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 
-    current_state = 'context'
     # "handle_button" will be called every time a button is pressed
     # It receives one argument: the associated input pin.
     def handle_button(pin):
