@@ -1,7 +1,7 @@
 # Spotipi E-Ink
 ## Overview
 This project is to display information on a 4", 5.7" or 7,3" e-ink from the Spotify web api. Project [Youtube Video](https://www.youtube.com/watch?v=uQYIAYa27ds)</br>
-Optional it will install a service to support buttons actions. Buttton functions:
+Buttton functions:
 * Button A - next track
 * Button B - previos track
 * Button C - play/pause
@@ -36,3 +36,9 @@ bash setup.sh
 
 ## Software:
 * [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
+
+## 3D printing:
+* [4" Case - none free](https://cults3d.com/en/3d-model/gadget/desktop-case-for-pimoroni-inky-impression-4-7-colour-epaper-eink-hat-and-raspberry-pi-zero-3-a)
+* [5.7" Case - free](https://cults3d.com/en/3d-model/gadget/spotipi-e-ink-inky-impression-5-7-case)
+* [5.7" Case - none free](https://cults3d.com/en/3d-model/gadget/picture-frame-for-pimoroni-inky-impression-epaper-eink-epd-and-raspberry-pi-zero)
+* [5.7" Case - none free](https://cults3d.com/en/3d-model/gadget/enclosure-for-pimoroni-inky-impression-epaper-eink-epd-and-raspberry-pi-zero)
