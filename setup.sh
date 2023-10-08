@@ -118,7 +118,7 @@ echo "html_file_path = ${install_path}/client/spotipi-eink.html" >> ${install_pa
 echo "no_song_cover = ${install_path}/client/default.jpg" >> ${install_path}/config/eink_options.ini
 cp "${install_path}/setup/html_template/default.jpg" "${install_path}/client/album_cover.jpg"
 cp "${install_path}/setup/html_template/default.jpg" "${install_path}/client/default.jpg"
-cp cp "${install_path}/setup/font/CircularStd-Bold.otf" "${install_path}/client/CircularStd-Bold.otf"
+cp "${install_path}/setup/font/CircularStd-Bold.otf" "${install_path}/client/CircularStd-Bold.otf"
 if ! [ -d "${install_path}/log" ]; then
     echo "creating ${install_path}/log"
     mkdir "${install_path}/log"
