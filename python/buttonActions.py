@@ -8,18 +8,22 @@ import RPi.GPIO as GPIO
 
 current_state = 'context'
 
-def get_state(current_state:str) -> str:
+
+def get_state(current_state: str) -> str:
     states = ['track', 'context', 'off']
     index = states.index(current_state)
     if index < (len(states)-1):
         return states[index+1]
     else:
         return states[0]
-    
+
 # CTR + C event clean up GPIO setup and exit nicly
+
+
 def signal_handler(sig, frame):
     GPIO.cleanup()
     sys.exit(0)
+
 
 # Configuration file
 dir = os.path.dirname(__file__)
@@ -28,9 +32,12 @@ config_file = os.path.join(dir, '..', 'config', 'eink_options.ini')
 config = configparser.ConfigParser()
 config.read(config_file)
 scope = 'user-modify-playback-state'
-token = util.prompt_for_user_token(username=config['DEFAULT']['username'], scope=scope, cache_path=config['DEFAULT']['token_file'])
+token = util.prompt_for_user_token(
+    username=config['DEFAULT']['username'],
+    scope=scope, cache_path=config['DEFAULT']['token_file'])
 if not token:
     print(f"Error with token: {config['DEFAULT']['token_file']}")
+    sys.exit(-1)
 sp = spotipy.Spotify(auth=token)
 # Gpio pins for each button (from top to bottom)
 BUTTONS = [5, 6, 16, 24]
@@ -68,6 +75,7 @@ def handle_button(pin):
         current_state = get_state(current_state)
         print(f'repeat: {current_state}')
         sp.repeat(state=current_state)
+
 
 # Loop through out buttons and attach the "handle_button" function to each
 # We're watching the "FALLING" edge (transition from 3.3V to Ground) and

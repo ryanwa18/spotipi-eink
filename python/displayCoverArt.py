@@ -54,16 +54,21 @@ def display_screenshot(screenshot: str, saturation: float = 0.5):
 def display_update_process(song_request: list, config: configparser.ConfigParser, firefox_cmd: list, screenshot_file: str, pic_counter: int) -> int:
     if song_request:
         # download cover
-        urllib.request.urlretrieve(url=song_request[1], filename=config['DEFAULT']['album_cover_path'])
+        urllib.request.urlretrieve(
+            url=song_request[1], filename=config['DEFAULT']['album_cover_path'])
         # update html file with song details
-        update_html_file(file_path=config['DEFAULT']['html_file_path'], song_name=song_request[0], artist_name=song_request[2])
+        update_html_file(file_path=config['DEFAULT']['html_file_path'],
+                         song_name=song_request[0], artist_name=song_request[2])
     else:
         # not song playing copy logo
-        shutil.copyfile(config['DEFAULT']['no_song_cover'], config['DEFAULT']['album_cover_path'])
+        shutil.copyfile(config['DEFAULT']['no_song_cover'],
+                        config['DEFAULT']['album_cover_path'])
         # update html file
-        update_html_file(file_path=config['DEFAULT']['html_file_path'], song_name='No song playing', artist_name='spotipi-eink')
+        update_html_file(file_path=config['DEFAULT']['html_file_path'],
+                         song_name='No song playing', artist_name='spotipi-eink')
     # create screenshot of html file
-    subprocess.check_call(firefox_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.check_call(
+        firefox_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     # clean screen every x pics
     if pic_counter > int(config['DEFAULT']['display_refresh_counter']):
         display_clean()
@@ -82,39 +87,48 @@ def main():
     config = configparser.ConfigParser()
     config.read(config_file)
     logging.basicConfig(format='%(asctime)s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S %p', filename=config['DEFAULT']['spotipy_log'], level=logging.INFO)
+                        datefmt='%Y-%m-%d %H:%M:%S %p',
+                        filename=config['DEFAULT']['spotipy_log'],
+                        level=logging.INFO)
     logger = logging.getLogger('spotipy_logger')
     # automatically deletes logs more than 2000 bytes
-    handler = RotatingFileHandler(config['DEFAULT']['spotipy_log'], maxBytes=2000,  backupCount=3)
+    handler = RotatingFileHandler(
+        config['DEFAULT']['spotipy_log'], maxBytes=2000,  backupCount=3)
     logger.addHandler(handler)
     # clean screen initially
     display_clean()
     # prep some vars befor entering service loop
     song_prev = ''
-    screenshot_file = os.path.join(tempfile.gettempdir(), config['DEFAULT']['screenshot_filename'])
+    screenshot_file = os.path.join(
+        tempfile.gettempdir(), config['DEFAULT']['screenshot_filename'])
     firefox_cmd = ['firefox', '--headless', '--screenshot', screenshot_file,
-                f"--window-size={config['DEFAULT']['width']},{config['DEFAULT']['height']}", f"file://{config['DEFAULT']['html_file_path']}"]
+                   f"--window-size={config['DEFAULT']['width']},{config['DEFAULT']['height']}",
+                   f"file://{config['DEFAULT']['html_file_path']}"]
     pic_counter = 0
     try:
         while True:
             try:
-                song_request = getSongInfo(config['DEFAULT']['username'], config['DEFAULT']['token_file'])
+                song_request = getSongInfo(
+                    config['DEFAULT']['username'], config['DEFAULT']['token_file'])
                 if song_request:
                     if song_prev != song_request[1]:
                         song_prev = song_request[1]
-                        pic_counter = display_update_process(song_request=song_request, config=config, firefox_cmd=firefox_cmd, screenshot_file=screenshot_file, pic_counter=pic_counter)
+                        pic_counter = display_update_process(
+                            song_request=song_request, config=config, firefox_cmd=firefox_cmd,
+                            screenshot_file=screenshot_file, pic_counter=pic_counter)
                 if not song_request:
                     if song_prev != 'NO_SONG':
                         # set fake song name to updae only once if no song is playing.
                         song_prev = 'NO_SONG'
-                        pic_counter = display_update_process(song_request=song_request, config=config, firefox_cmd=firefox_cmd, screenshot_file=screenshot_file, pic_counter=pic_counter)
+                        pic_counter = display_update_process(
+                            song_request=song_request, config=config, firefox_cmd=firefox_cmd,
+                            screenshot_file=screenshot_file, pic_counter=pic_counter)
                 time.sleep(1)
             except Exception as e:
                 print(f'Error: {e}', file=sys.stderr)
             time.sleep(1)
     except KeyboardInterrupt:
         sys.exit(0)
-
 
 
 if __name__ == "__main__":
