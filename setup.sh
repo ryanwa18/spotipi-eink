@@ -12,7 +12,7 @@ if [ -d "spotipi-eink" ]; then
 fi
 echo
 echo "Clone spotipy-eink git"
-git clone --recurse-submodules https://github.com/Gabbajoe/spotipi-eink
+git clone https://github.com/Gabbajoe/spotipi-eink
 cd spotipi-eink
 
 echo "Add font to system:"
