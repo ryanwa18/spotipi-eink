@@ -7,3 +7,4 @@ __pycache__
 config/*
 client/*
 /config/eink_options.ini
+/python/getArtis.py
