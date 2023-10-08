@@ -88,17 +88,17 @@ do
     case $opt in
         "Inky Impression 4 (640x400)")
             cp ${install_path}/setup/html_template/spotipi-eink1.html ${install_path}/client/spotipi-eink.html
-            cp ${install_path}/setup/config_template/spotipi-eink1.ini ${install_path}/config/eink_options.ini
+            cp ${install_path}/setup/config_template/eink_options1.ini ${install_path}/config/eink_options.ini
             break
             ;;
         "Inky Impression 5.7 (600x488)")
             cp ${install_path}/setup/html_template/spotipi-eink2.html ${install_path}/client/spotipi-eink.html
-            cp ${install_path}/setup/config_template/spotipi-eink2.ini ${install_path}/config/eink_options.ini
+            cp ${install_path}/setup/config_template/eink_options2.ini ${install_path}/config/eink_options.ini
             break
             ;;
         "Inky Impression 7.3 (800x480")
             cp ${install_path}/python/client/static/spotipi-eink3.html ${install_path}/client/spotipi-eink.html
-            cp ${install_path}/setup/config_template/spotipi-eink3.ini ${install_path}/config/eink_options.ini
+            cp ${install_path}/setup/config_template/eink_options3.ini ${install_path}/config/eink_options.ini
             break
             ;;
         *)
@@ -112,7 +112,7 @@ echo "display_refresh_counter = 20" >> ${install_path}/config/eink_options.ini
 echo "username = ${spotify_username}" >> ${install_path}/config/eink_options.ini
 echo "token_file = ${spotify_token_path}" >> ${install_path}/config/eink_options.ini
 echo "screenshot_filename = screenshot.png" >> ${install_path}/config/eink_options.ini
-echo "spotipy_log = spotipy_log = ${install_path}/log/spotipy.log" >> ${install_path}/config/eink_options.ini
+echo "spotipy_log = ${install_path}/log/spotipy.log" >> ${install_path}/config/eink_options.ini
 echo "album_cover_path = ${install_path}/client/album_cover.jpg" >> ${install_path}/config/eink_options.ini
 echo "html_file_path = ${install_path}/client/spotipi-eink.html" >> ${install_path}/config/eink_options.ini
 echo "no_song_cover = ${install_path}/client/default.jpg" >> ${install_path}/config/eink_options.ini
