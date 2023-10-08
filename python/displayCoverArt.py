@@ -64,8 +64,8 @@ def display_update_process(song_request: list, config: configparser.ConfigParser
         update_html_file(file_path=config['DEFAULT']['html_file_path'], song_name='No song playing', artist_name='spotipi-eink')
     # create screenshot of html file
     subprocess.check_call(firefox_cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    # clean screen every 20 pics
-    if pic_counter > 20:
+    # clean screen every x pics
+    if pic_counter > int(config['DEFAULT']['display_refresh_counter']):
         display_clean()
         pic_counter = 0
     # display screenshot on display
