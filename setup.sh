@@ -95,7 +95,7 @@ do
             cp ${install_path}/setup/config_template/eink_options2.ini ${install_path}/config/eink_options.ini
             break
             ;;
-        "Inky Impression 7.3 (800x480")
+        "Inky Impression 7.3 (800x480)")
             cp ${install_path}/python/client/static/spotipi-eink3.html ${install_path}/client/spotipi-eink.html
             cp ${install_path}/setup/config_template/eink_options3.ini ${install_path}/config/eink_options.ini
             break
