@@ -111,8 +111,8 @@ def main():
                 song_request = getSongInfo(
                     config['DEFAULT']['username'], config['DEFAULT']['token_file'])
                 if song_request:
-                    if song_prev != song_request[1]:
-                        song_prev = song_request[1]
+                    if song_prev != song_request[0]+song_request[1]:
+                        song_prev = song_request[0]+song_request[1]
                         pic_counter = display_update_process(
                             song_request=song_request, config=config, firefox_cmd=firefox_cmd,
                             screenshot_file=screenshot_file, pic_counter=pic_counter)
@@ -123,7 +123,6 @@ def main():
                         pic_counter = display_update_process(
                             song_request=song_request, config=config, firefox_cmd=firefox_cmd,
                             screenshot_file=screenshot_file, pic_counter=pic_counter)
-                time.sleep(1)
             except Exception as e:
                 print(f'Error: {e}', file=sys.stderr)
             time.sleep(1)
