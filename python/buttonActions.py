@@ -6,6 +6,7 @@ import spotipy.util as util
 import signal
 import RPi.GPIO as GPIO
 
+# initial status
 current_state = 'context'
 
 
@@ -56,24 +57,19 @@ GPIO.setup(BUTTONS, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # "handle_button" will be called every time a button is pressed
 # It receives one argument: the associated input pin.
 def handle_button(pin):
+    global current_state
     label = LABELS[BUTTONS.index(pin)]
-    print("Button press detected on pin: {} label: {}".format(pin, label))
     if label == 'A':
-        print('next trak')
         sp.next_track()
     if label == 'B':
-        print('previos rack')
         sp.previous_track()
     if label == 'C':
         try:
             sp.start_playback()
-        except spotipy.exceptions.SpotifyException as e:
-            print(f'error: {e}')
-            print('allready playing so we pause')
+        except spotipy.exceptions.SpotifyException:
             sp.pause_playback()
     if label == 'D':
         current_state = get_state(current_state)
-        print(f'repeat: {current_state}')
         sp.repeat(state=current_state)
 
 
