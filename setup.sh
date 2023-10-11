@@ -8,7 +8,7 @@ sudo apt update
 echo "Update to the latest"
 sudo apt -y upgrade
 echo "Ensure packages are installed:"
-sudo apt-get install python3-pip python3-numpy git firefox-esr
+sudo apt-get install python3-pip python3-venv python3-numpy git firefox-esr
 echo
 if [ -d "spotipi-eink" ]; then
     echo "Old installation found deleting it"
@@ -29,17 +29,13 @@ else
     echo "OTF CircularStd-Bold already installed"
 fi
 echo
-echo "Installing spotipy library:"
-pip3 install spotipy --upgrade
+echo "##### Creating Spotipi python environment"
 
-echo "Installing beautifulsoup4 library:"
-pip3 install beautifulsoup4 --upgrade
+python3 -m venv --system-site-packages spotipienv
+echo "activating environment"
+. spotipienv/bin/activate
+echo Install python packages spotipy, pillow,inky impression
 
-echo "Installing pillow library:"
-pip3 install pillow --upgrade
-
-echo "Installing inky impression libraries:"
-pip3 install inky[rpi,example-depends]
 echo
 echo "###### Generate Spotify Token"
 if ! [ -d "${install_path}/config" ]; then
@@ -140,7 +136,8 @@ GID_TO_USE=$(id -g)
 echo
 echo "Creating spotipi-eink service:"
 sudo cp "${install_path}/setup/service_template/spotipi-eink.service" /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/displayCoverArt.py" /etc/systemd/system/spotipi-eink.service
+sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipi/spotipienv/python3 ${install_path}/python/displayCoverArt.py" /etc/systemd/system/spotipi-eink.service
+sudo sed -i -e "/ExecStart/a WorkingDirectory=${install_path}" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink.service
 sudo mkdir /etc/systemd/system/spotipi-eink.service.d
@@ -169,7 +166,8 @@ fi
 echo
 echo "Creating spotipi-eink-buttons service:"
 sudo cp "${install_path}/setup/service_template/spotipi-eink-buttons.service" /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=python3 ${install_path}/python/buttonActions.py" /etc/systemd/system/spotipi-eink-buttons.service
+sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipi/spotipienv/python3 ${install_path}/python/buttonActions.py" /etc/systemd/system/spotipi-eink-buttons.service
+sudo sed -i -e "/ExecStart/a WorkingDirectory=${install_path}" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
 sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
 sudo mkdir /etc/systemd/system/spotipi-eink-buttons.service.d
