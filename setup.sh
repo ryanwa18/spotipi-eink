@@ -5,9 +5,11 @@ if [[ $EUID -eq 0 ]]; then
 fi
 echo "Update Packages list"
 sudo apt update
+echo
 echo "Update to the latest"
 sudo apt -y upgrade
-echo "Ensure packages are installed:"
+echo
+echo "Ensure system packages are installed:"
 sudo apt-get install python3-pip python3-venv python3-numpy git firefox-esr
 echo
 if [ -d "spotipi-eink" ]; then
@@ -17,25 +19,26 @@ fi
 echo
 echo "Clone spotipy-eink git"
 git clone https://github.com/Gabbajoe/spotipi-eink
+echo "Switching into instalation directory"
 cd spotipi-eink
 install_path=$(pwd)
 if ! [ -f "/usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf" ]; then
-    echo "Add font to system:"
+    echo "Add font CircularStd-Bold to system"
     if ! [ -d "/usr/share/fonts/opentype/CircularStd-Bold" ]; then
         sudo mkdir -p "/usr/share/fonts/opentype/CircularStd-Bold"
     fi
     sudo cp "${install_path}/setup/font/CircularStd-Bold.otf" /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
 else
-    echo "OTF CircularStd-Bold already installed"
+    echo "Font CircularStd-Bold already installed"
 fi
 echo
-echo "##### Creating Spotipi python environment"
-
+echo "##### Creating Spotipi Python environment"
 python3 -m venv --system-site-packages spotipienv
-echo "activating environment"
-. spotipienv/bin/activate
-echo Install python packages spotipy, pillow,inky impression
+echo "Activating Spotipi Python environment"
+source ${install_path}/spotipienv/bin/activate
+echo Install Python packages: spotipy, pillow, inky impression
 pip3 install -r requirements.txt
+echo "##### Spotipi Python environment created" 
 echo
 echo "###### Generate Spotify Token"
 if ! [ -d "${install_path}/config" ]; then
@@ -64,7 +67,7 @@ if [ -f "${install_path}/config/.cache" ]; then
     spotify_token_path="${install_path}/config/.cache"
     echo "Use $spotify_token_path"
 else
-    echo "Unable to finde ${install_path}/.cache"
+    echo "Unable to find ${install_path}/.cache"
     echo "Please enter the full path to your spotify token file (including /.cache):"
     read spotify_token_path
 fi
@@ -136,7 +139,7 @@ GID_TO_USE=$(id -g)
 echo
 echo "Creating spotipi-eink service:"
 sudo cp "${install_path}/setup/service_template/spotipi-eink.service" /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipi/spotipienv/python3 ${install_path}/python/displayCoverArt.py" /etc/systemd/system/spotipi-eink.service
+sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipienv/bin/python3 ${install_path}/python/displayCoverArt.py" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/ExecStart/a WorkingDirectory=${install_path}" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink.service
@@ -166,7 +169,7 @@ fi
 echo
 echo "Creating spotipi-eink-buttons service:"
 sudo cp "${install_path}/setup/service_template/spotipi-eink-buttons.service" /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipi/spotipienv/python3 ${install_path}/python/buttonActions.py" /etc/systemd/system/spotipi-eink-buttons.service
+sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipienv/bin/python3 ${install_path}/python/buttonActions.py" /etc/systemd/system/spotipi-eink-buttons.service
 sudo sed -i -e "/ExecStart/a WorkingDirectory=${install_path}" /etc/systemd/system/spotipi-eink.service
 sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
 sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
