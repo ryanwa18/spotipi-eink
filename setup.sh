@@ -35,7 +35,7 @@ python3 -m venv --system-site-packages spotipienv
 echo "activating environment"
 . spotipienv/bin/activate
 echo Install python packages spotipy, pillow,inky impression
-
+pip3 install -r requirements.txt
 echo
 echo "###### Generate Spotify Token"
 if ! [ -d "${install_path}/config" ]; then
