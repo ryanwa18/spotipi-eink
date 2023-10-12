@@ -10,7 +10,7 @@ echo "Update to the latest"
 sudo apt -y upgrade
 echo
 echo "Ensure system packages are installed:"
-sudo apt-get install python3-pip python3-venv python3-numpy git firefox-esr
+sudo apt-get install python3-pip python3-venv python3-numpy git
 echo
 if [ -d "spotipi-eink" ]; then
     echo "Old installation found deleting it"
@@ -22,15 +22,6 @@ git clone https://github.com/Gabbajoe/spotipi-eink
 echo "Switching into instalation directory"
 cd spotipi-eink
 install_path=$(pwd)
-if ! [ -f "/usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf" ]; then
-    echo "Add font CircularStd-Bold to system"
-    if ! [ -d "/usr/share/fonts/opentype/CircularStd-Bold" ]; then
-        sudo mkdir -p "/usr/share/fonts/opentype/CircularStd-Bold"
-    fi
-    sudo cp "${install_path}/setup/font/CircularStd-Bold.otf" /usr/share/fonts/opentype/CircularStd-Bold/CircularStd-Bold.otf
-else
-    echo "Font CircularStd-Bold already installed"
-fi
 echo
 echo "##### Creating Spotipi Python environment"
 python3 -m venv --system-site-packages spotipienv
@@ -74,9 +65,9 @@ fi
 echo "###### Spotify Token Created"
 cd ${install_path}
 echo
-if ! [ -d "${install_path}/client" ]; then
-    echo "creating ${install_path}/client path"
-    mkdir -p "${install_path}/client"
+if ! [ -d "${install_path}/resources" ]; then
+    echo "creating ${install_path}/resources path"
+    mkdir -p "${install_path}/resources"
 fi
 echo
 echo "###### Display setup"
@@ -86,18 +77,27 @@ select opt in "${options[@]}"
 do
     case $opt in
         "Inky Impression 4 (640x400)")
-            cp ${install_path}/setup/html_template/spotipi-eink1.html ${install_path}/client/spotipi-eink.html
             cp ${install_path}/setup/config_template/eink_options1.ini ${install_path}/config/eink_options.ini
+            echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
+            echo "width = 640" >> ${install_path}/config/eink_options.ini
+            echo "height = 400" >> ${install_path}/config/eink_options.ini
+            echo "album_cover_small_px = 200" >> ${install_path}/config/eink_options.ini
             break
             ;;
         "Inky Impression 5.7 (600x448)")
-            cp ${install_path}/setup/html_template/spotipi-eink2.html ${install_path}/client/spotipi-eink.html
             cp ${install_path}/setup/config_template/eink_options2.ini ${install_path}/config/eink_options.ini
+            echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
+            echo "width = 600" >> ${install_path}/config/eink_options.ini
+            echo "height = 448" >> ${install_path}/config/eink_options.ini
+            echo "album_cover_small_px = 250" >> ${install_path}/config/eink_options.ini
             break
             ;;
         "Inky Impression 7.3 (800x480)")
-            cp ${install_path}/python/client/static/spotipi-eink3.html ${install_path}/client/spotipi-eink.html
             cp ${install_path}/setup/config_template/eink_options3.ini ${install_path}/config/eink_options.ini
+            echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
+            echo "width = 800" >> ${install_path}/config/eink_options.ini
+            echo "height = 480" >> ${install_path}/config/eink_options.ini
+            echo "album_cover_small_px = 300" >> ${install_path}/config/eink_options.ini
             break
             ;;
         *)
@@ -107,17 +107,29 @@ do
 done
 echo
 echo "###### Creating default config entries and files"
+echo "; disable smaller album cover set to False" >> ${install_path}/config/eink_options.ini
+echo "; if disabled top offset is still calculated like as the following:" >> ${install_path}/config/eink_options.ini
+echo "; offset_px_top + album_cover_small_px" >> ${install_path}/config/eink_options.ini
+echo "album_cover_small = True" >> ${install_path}/config/eink_options.ini
+echo "; cleans the display every 20 picture" >> ${install_path}/config/eink_options.ini
+echo "; this takes ~60 seconds" >> ${install_path}/config/eink_options.ini
 echo "display_refresh_counter = 20" >> ${install_path}/config/eink_options.ini
 echo "username = ${spotify_username}" >> ${install_path}/config/eink_options.ini
 echo "token_file = ${spotify_token_path}" >> ${install_path}/config/eink_options.ini
-echo "screenshot_filename = screenshot.png" >> ${install_path}/config/eink_options.ini
 echo "spotipy_log = ${install_path}/log/spotipy.log" >> ${install_path}/config/eink_options.ini
-echo "album_cover_path = ${install_path}/client/album_cover.jpg" >> ${install_path}/config/eink_options.ini
-echo "html_file_path = ${install_path}/client/spotipi-eink.html" >> ${install_path}/config/eink_options.ini
-echo "no_song_cover = ${install_path}/client/default.jpg" >> ${install_path}/config/eink_options.ini
-cp "${install_path}/setup/html_template/default.jpg" "${install_path}/client/album_cover.jpg"
-cp "${install_path}/setup/html_template/default.jpg" "${install_path}/client/default.jpg"
-cp "${install_path}/setup/font/CircularStd-Bold.otf" "${install_path}/client/CircularStd-Bold.otf"
+echo "no_song_cover = ${install_path}/resources/default.jpg" >> ${install_path}/config/eink_options.ini
+echo "font_path = ${install_path}/resources/CircularStd-Bold.otf" >> ${install_path}/config/eink_options.ini
+echo "font_size_title = 45" >> ${install_path}/config/eink_options.ini
+echo "font_size_artist = 35" >> ${install_path}/config/eink_options.ini
+echo "offset_px_left = 20" >> ${install_path}/config/eink_options.ini
+echo "offset_px_right = 20" >> ${install_path}/config/eink_options.ini
+echo "offset_px_top = 0" >> ${install_path}/config/eink_options.ini
+echo "offset_px_bottom = 20" >> ${install_path}/config/eink_options.ini
+echo "offset_text_px_shadow = 4" >> ${install_path}/config/eink_options.ini
+echo "; text_direction possible values: top-down or bottom-up" >> ${install_path}/config/eink_options.ini
+echo "text_direction = bottom-up" >> ${install_path}/config/eink_options.ini
+echo "done creation default config  ${install_path}/config/eink_options.ini"
+
 if ! [ -d "${install_path}/log" ]; then
     echo "creating ${install_path}/log"
     mkdir "${install_path}/log"
