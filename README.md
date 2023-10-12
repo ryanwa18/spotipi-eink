@@ -2,7 +2,7 @@
 ![spotipi-eink Logo](/images/logo.png)
 ## Overview
 This project is to display information on a 4", 5.7" or 7,3" e-ink from the Spotify web api.</br>
-Let you cont>roll via the 4 Buttons you Spotify player.</br>
+Let you control via the 4 Buttons you Spotify player.</br>
 Project [Youtube Video](https://www.youtube.com/watch?v=uQYIAYa27ds) from [Ryan Ward ](https://github.com/ryanwa18)
 
 Button functions:
