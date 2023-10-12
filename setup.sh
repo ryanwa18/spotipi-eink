@@ -81,7 +81,7 @@ fi
 echo
 echo "###### Display setup"
 PS3="Please select your Inky Impression Model: "
-options=("Inky Impression 4 (640x400)" "Inky Impression 5.7 (600x488)" "Inky Impression 7.3 (800x480)")
+options=("Inky Impression 4 (640x400)" "Inky Impression 5.7 (448)" "Inky Impression 7.3 (800x480)")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -90,7 +90,7 @@ do
             cp ${install_path}/setup/config_template/eink_options1.ini ${install_path}/config/eink_options.ini
             break
             ;;
-        "Inky Impression 5.7 (600x488)")
+        "Inky Impression 5.7 (600x448)")
             cp ${install_path}/setup/html_template/spotipi-eink2.html ${install_path}/client/spotipi-eink.html
             cp ${install_path}/setup/config_template/eink_options2.ini ${install_path}/config/eink_options.ini
             break
