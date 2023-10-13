@@ -160,7 +160,7 @@ class SpotipiEinkDisplay:
         bg_w, bg_h = image.size
         if self.config.get('DEFAULT', 'background_mode') == 'fit':
             if bg_w < self.config.getint('DEFAULT', 'width') or bg_w > self.config.getint('DEFAULT', 'width'):
-                image_new = ImageOps.fit(image=image, size=(self.config.getint('DEFAULT', 'width'), self.config.getint('DEFAULT', 'height')), centering=(0, 0.5))
+                image_new = ImageOps.fit(image=image, size=(self.config.getint('DEFAULT', 'width'), self.config.getint('DEFAULT', 'height')), centering=(0, 0))
             else:
                 # no need to expand just crop
                 image_new = image.crop((0, 0, self.config.getint('DEFAULT', 'width'), self.config.getint('DEFAULT', 'height')))
