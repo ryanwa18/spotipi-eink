@@ -1,5 +1,16 @@
 # Spotipi E-Ink
-![spotipi-eink Logo](/images/logo.png)
+![spotipi-eink Logo](/images/logo.png)</br>
+Table of Content
+- [Spotipi E-Ink](#spotipi-e-ink)
+  - [Overview](#overview)
+  - [Getting Started](#getting-started)
+  - [Configuration](#configuration)
+  - [Components](#components)
+  - [Software](#software)
+  - [3D printing](#3d-printing)
+    - [Free cases](#free-cases)
+    - [None free cases from Pimoroni](#none-free-cases-from-pimoroni)
+  - [Show case](#show-case)
 ## Overview
 This project is to display information on a 4", 5.7" or 7,3" e-ink from the Spotify web api.</br>
 Let you control via the 4 Buttons you Spotify player.</br>
