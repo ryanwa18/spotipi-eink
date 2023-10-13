@@ -7,9 +7,9 @@ Project [Youtube Video](https://www.youtube.com/watch?v=uQYIAYa27ds) from [Ryan 
 
 Button functions:
 * Button A - next track
-* Button B - previos track
+* Button B - previous track
 * Button C - play/pause
-* Button D - toggel repeate order: track, context, off
+* Button D - toggle repeat order: track, context(playlist), off
 
 ## Getting Started
 * Create a new application within the [Spotify developer dashboard](https://developer.spotify.com/dashboard/applications)
@@ -31,6 +31,59 @@ chmod +x setup.sh
 ```
 bash setup.sh
 ```
+
+After the spotipi-eink is installed you have 2 systemd services:
+* spotipi-eink.service
+* spotipi-eink-buttons.service
+
+This services run as the user with that you executed the setup.sh.
+
+You control the services via systemctl **start, stop, status** *(services-name)*. Example get the status of *spotipi-eink.service*:
+```
+spotipi@spotipi:~ $ sudo systemctl status spotipi-eink.service
+● spotipi-eink.service - Spotipi eInk Display service
+     Loaded: loaded (/etc/systemd/system/spotipi-eink.service; enabled; preset: enabled)
+    Drop-In: /etc/systemd/system/spotipi-eink.service.d
+             └─spotipi-eink_env.conf
+     Active: active (running) since Thu 2023-10-12 23:20:53 CEST; 32min ago
+   Main PID: 3940 (python3)
+      Tasks: 1 (limit: 383)
+        CPU: 7min 116ms
+     CGroup: /system.slice/spotipi-eink.service
+             └─3940 /home/spotipi/spotipi-eink//spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/displayCoverArt.py
+
+Oct 12 23:20:53 spotipi systemd[1]: Started spotipi-eink.service - Spotipi eInk Display service.
+```
+
+With the latest Raspberry PI OS **Bookworm** you have no more */var/log/syslog* you have to use *journalctl*. To view the *spotipi-eink.service* and *spotipi-eink-buttons.service* logs use the following command:
+
+```
+# see all time logs
+journalctl -u spotipi-eink.service -u spotipi-eink-buttons.service
+```
+or
+```
+# see only today logs
+journalctl -u spotipi-eink.service -u spotipi-eink-buttons.service --since today
+```
+
+Spotipi-eink creates its own Python environment because since Raspberry PI OS **Bookworm** the system Python environment is protect See:
+* [Python on Raspberry Pi](https://www.raspberrypi.com/documentation/computers/os.html#python-on-raspberry-pi)
+* [PEP668](https://peps.python.org/pep-0668/)
+
+If you like to manual execute the Python script you have to load into the Virtual Python environment like the following commands shows. You will see then in front of you terminal a **(spotipienv)**:
+```
+cd ~
+. spotipi/spotipi-eink/spotipienv/bin/activate
+```
+Additional you need to export the following 3 environment variable on you shell that the spotipy library is working.
+```
+export SPOTIPY_CLIENT_ID=''
+export SPOTIPY_CLIENT_SECRET=''
+export SPOTIPY_REDIRECT_URI=''
+```
+If you like to leave the Virtual Python environment just type: **deactivate**
+
 
 ## Configuration
 In the file **spotipi/config/eink_options.ini** you can modify:
@@ -55,7 +108,7 @@ album_cover_small = True
 ; cleans the display every 20 picture
 ; this takes ~60 seconds
 display_refresh_counter = 20
-username = theRockJohnsons
+username = theRockJohnson
 token_file = /home/spotipi/spotipi-eink/config/.cache
 spotipy_log = /home/spotipi/spotipi-eink/log/spotipy.log
 no_song_cover = /home/spotipi/spotipi-eink/resources/default.jpg
@@ -71,23 +124,23 @@ offset_text_px_shadow = 4
 text_direction = bottom-up
 ```
 
-## Components: 
+## Components
 * [Raspberry Pi Zero 2](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/)
 * [Inky Impression 4"](https://shop.pimoroni.com/products/inky-impression-4?variant=39599238807635)
 * [Inky Impression 5.7"](https://shop.pimoroni.com/products/inky-impression-5-7?variant=32298701324371)
 * [Inky Impression 7.3"](https://shop.pimoroni.com/products/inky-impression-7-3?variant=40512683376723)
 
-## Software:
+## Software
 * [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
 
-## 3D printing:
-### Free cases:
+## 3D printing
+### Free cases
 * [SpotiPi E-Ink - Inky Impression 5.7" Case](https://cults3d.com/en/3d-model/gadget/spotipi-e-ink-inky-impression-5-7-case)
 * [Pimoroni Inky Impression Case - 5.7" I guess](https://www.printables.com/de/model/51765-pimoroni-inky-impression-case/files)
 * [Inky Impression 5.7" Frame](https://www.printables.com/de/model/603008-inky-impression-57-frame)
 * [Inky Impression 7.3 e-Paper frame/case](https://www.printables.com/de/model/585713-inky-impression-73-e-paper-framecase)
 * [Pimoroni 7 color EInk display Frame](https://www.thingiverse.com/thing:4666925)
-### None free cases from Pimoroni:
+### None free cases from Pimoroni
 * [Desktop Case for pimoroni Inky Impression 4" (7 colour ePaper/eInk HAT) and Raspberry Pi Zero/3 A+](https://cults3d.com/en/3d-model/gadget/desktop-case-for-pimoroni-inky-impression-4-7-colour-epaper-eink-hat-and-raspberry-pi-zero-3-a)
 * [Picture frame for pimoroni Inky Impression 5.7" (ePaper/eInk/EPD) and raspberry pi zero](https://cults3d.com/en/3d-model/gadget/picture-frame-for-pimoroni-inky-impression-epaper-eink-epd-and-raspberry-pi-zero)
 * [Enclosure for pimoroni Inky Impression (ePaper/eInk/EPD) and raspberry pi zero](https://cults3d.com/en/3d-model/gadget/enclosure-for-pimoroni-inky-impression-epaper-eink-epd-and-raspberry-pi-zero)
