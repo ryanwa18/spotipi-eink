@@ -44,38 +44,40 @@ bash setup.sh
 ```
 
 After the spotipi-eink is installed you have 2 systemd services:
-* spotipi-eink.service
+* spotipi-eink-display.service
 * spotipi-eink-buttons.service
 
 This services run as the user with that you executed the setup.sh.
 
-You control the services via systemctl **start, stop, status** *(services-name)*. Example get the status of *spotipi-eink.service*:
+You control the services via systemctl **start, stop, status** *(services-name)*. Example get the status of *spotipi-eink-display.service*:
 ```
-spotipi@spotipi:~ $ sudo systemctl status spotipi-eink.service
-● spotipi-eink.service - Spotipi eInk Display service
-     Loaded: loaded (/etc/systemd/system/spotipi-eink.service; enabled; preset: enabled)
-    Drop-In: /etc/systemd/system/spotipi-eink.service.d
-             └─spotipi-eink_env.conf
-     Active: active (running) since Thu 2023-10-12 23:20:53 CEST; 32min ago
-   Main PID: 3940 (python3)
+spotipi@spotipi:~ $ sudo systemctl status spotipi-eink-display.service
+● spotipi-eink-display.service - Spotipi eInk Display service
+     Loaded: loaded (/etc/systemd/system/spotipi-eink-display.service; enabled; preset: enabled)
+    Drop-In: /etc/systemd/system/spotipi-eink-display.service.d
+             └─spotipi-eink-display_env.conf
+     Active: active (running) since Fri 2023-10-13 21:20:18 CEST; 4min 54s ago
+   Main PID: 8011 (python3)
       Tasks: 1 (limit: 383)
-        CPU: 7min 116ms
-     CGroup: /system.slice/spotipi-eink.service
-             └─3940 /home/spotipi/spotipi-eink//spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/displayCoverArt.py
+        CPU: 55.232s
+     CGroup: /system.slice/spotipi-eink-display.service
+             └─8011 /home/spotipi/spotipi-eink/spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/spotipiEinkDiplay.py
 
-Oct 12 23:20:53 spotipi systemd[1]: Started spotipi-eink.service - Spotipi eInk Display service.
+Oct 13 21:20:18 spotipi systemd[1]: Started spotipi-eink-display.service - Spotipi eInk Display service.
+Oct 13 21:20:20 spotipi spotipi-eink-display[8011]: Spotipi eInk Display - Service instance created
+Oct 13 21:20:20 spotipi spotipi-eink-display[8011]: Spotipi eInk Display - Service started
 ```
 
-With the latest Raspberry PI OS **Bookworm** you have no more */var/log/syslog* you have to use *journalctl*. To view the *spotipi-eink.service* and *spotipi-eink-buttons.service* logs use the following command:
+With the latest Raspberry PI OS **Bookworm** you have no more */var/log/syslog* you have to use *journalctl*. To view the *spotipi-eink-display.service* and *spotipi-eink-buttons.service* logs use the following command:
 
 ```
 # see all time logs
-journalctl -u spotipi-eink.service -u spotipi-eink-buttons.service
+journalctl -u spotipi-eink-display.service -u spotipi-eink-buttons.service
 ```
 or
 ```
 # see only today logs
-journalctl -u spotipi-eink.service -u spotipi-eink-buttons.service --since today
+journalctl -u spotipi-eink-display.service -u spotipi-eink-buttons.service --since today
 ```
 
 Spotipi-eink creates its own Python environment because since Raspberry PI OS **Bookworm** the system Python environment is protect See:
@@ -133,6 +135,8 @@ offset_px_bottom = 20
 offset_text_px_shadow = 4
 ; text_direction possible values: top-down or bottom-up
 text_direction = bottom-up
+; possible modes are fit or repeat
+background_mode = fit
 ```
 
 ## Components

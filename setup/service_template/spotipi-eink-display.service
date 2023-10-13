@@ -1,16 +1,16 @@
 [Unit]
-Description=Spotipi eInk Display Buttons service
+Description=Spotipi eInk Display service
 After=syslog.target network.target
 StartLimitIntervalSec=300
 StartLimitBurst=5
 
 [Service]
-SyslogIdentifier=spotipi-eink-buttons
+SyslogIdentifier=spotipi-eink-display
 LimitRTPRIO=99
 Restart=on-failure
 RestartSec=1s
 KillSignal=SIGINT
-EnvironmentFile=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
+EnvironmentFile=/etc/systemd/system/spotipi-eink-display.service.d/spotipi-eink-display_env.conf
 
 [Install]
 WantedBy=multi-user.target

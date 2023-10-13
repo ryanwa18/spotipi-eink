@@ -1,3 +1,4 @@
 spotipy
 pillow
+requests
 inky[rpi,example-depends]
