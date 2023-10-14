@@ -51,21 +51,21 @@ This services run as the user with that you executed the setup.sh.
 
 You control the services via systemctl **start, stop, status** *(services-name)*. Example get the status of *spotipi-eink-display.service*:
 ```
-spotipi@spotipi:~ $ sudo systemctl status spotipi-eink-display.service
+spotipi@spotipi:~/spotipi-eink/config $ sudo systemctl status spotipi-eink-display.service
 ● spotipi-eink-display.service - Spotipi eInk Display service
      Loaded: loaded (/etc/systemd/system/spotipi-eink-display.service; enabled; preset: enabled)
     Drop-In: /etc/systemd/system/spotipi-eink-display.service.d
              └─spotipi-eink-display_env.conf
-     Active: active (running) since Fri 2023-10-13 21:20:18 CEST; 4min 54s ago
-   Main PID: 8011 (python3)
+     Active: active (running) since Sat 2023-10-14 00:03:26 CEST; 4min 6s ago
+   Main PID: 8910 (python3)
       Tasks: 1 (limit: 383)
-        CPU: 55.232s
+        CPU: 43.021s
      CGroup: /system.slice/spotipi-eink-display.service
-             └─8011 /home/spotipi/spotipi-eink/spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/spotipiEinkDiplay.py
+             └─8910 /home/spotipi/spotipi-eink/spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/spotipiEinkDisplay.py
 
-Oct 13 21:20:18 spotipi systemd[1]: Started spotipi-eink-display.service - Spotipi eInk Display service.
-Oct 13 21:20:20 spotipi spotipi-eink-display[8011]: Spotipi eInk Display - Service instance created
-Oct 13 21:20:20 spotipi spotipi-eink-display[8011]: Spotipi eInk Display - Service started
+Oct 14 00:03:26 spotipi systemd[1]: Started spotipi-eink-display.service - Spotipi eInk Display service.
+Oct 14 00:03:28 spotipi spotipi-eink-display[8910]: Spotipi eInk Display - Service instance created
+Oct 14 00:03:28 spotipi spotipi-eink-display[8910]: Spotipi eInk Display - Service started
 ```
 
 With the latest Raspberry PI OS **Bookworm** you have no more */var/log/syslog* you have to use *journalctl*. To view the *spotipi-eink-display.service* and *spotipi-eink-buttons.service* logs use the following command:

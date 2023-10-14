@@ -27,8 +27,8 @@ echo "##### Creating Spotipi Python environment"
 python3 -m venv --system-site-packages spotipienv
 echo "Activating Spotipi Python environment"
 source ${install_path}/spotipienv/bin/activate
-echo Install Python packages: spotipy, pillow, inky impression
-pip3 install -r requirements.txt
+echo Install Python packages: spotipy, pillow, requests, inky impression
+pip3 install -r requirements.txt --upgrade
 echo "##### Spotipi Python environment created" 
 echo
 echo "###### Generate Spotify Token"
@@ -77,7 +77,6 @@ select opt in "${options[@]}"
 do
     case $opt in
         "Inky Impression 4 (640x400)")
-            cp ${install_path}/setup/config_template/eink_options1.ini ${install_path}/config/eink_options.ini
             echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
             echo "width = 640" >> ${install_path}/config/eink_options.ini
             echo "height = 400" >> ${install_path}/config/eink_options.ini
@@ -85,7 +84,6 @@ do
             break
             ;;
         "Inky Impression 5.7 (600x448)")
-            cp ${install_path}/setup/config_template/eink_options2.ini ${install_path}/config/eink_options.ini
             echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
             echo "width = 600" >> ${install_path}/config/eink_options.ini
             echo "height = 448" >> ${install_path}/config/eink_options.ini
@@ -93,7 +91,6 @@ do
             break
             ;;
         "Inky Impression 7.3 (800x480)")
-            cp ${install_path}/setup/config_template/eink_options3.ini ${install_path}/config/eink_options.ini
             echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
             echo "width = 800" >> ${install_path}/config/eink_options.ini
             echo "height = 480" >> ${install_path}/config/eink_options.ini
