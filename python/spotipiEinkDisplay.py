@@ -31,27 +31,6 @@ def limit_recursion(limit):
 
 
 class SpotipiEinkDisplay:
-
-    DESATURATED_PALETTE = [
-        [0, 0, 0],
-        [255, 255, 255],
-        [0, 255, 0],
-        [0, 0, 255],
-        [255, 0, 0],
-        [255, 255, 0],
-        [255, 140, 0],
-        [255, 255, 255]]
-
-    SATURATED_PALETTE = [
-        [57, 48, 57],
-        [255, 255, 255],
-        [58, 91, 70],
-        [61, 59, 94],
-        [156, 72, 75],
-        [208, 190, 71],
-        [177, 106, 73],
-        [255, 255, 255]]
-
     def __init__(self, delay=1):
         signal.signal(signal.SIGTERM, self._handle_sigterm)
         self.delay = delay
@@ -146,45 +125,6 @@ class SpotipiEinkDisplay:
             h_taken_by_text += new_height
         return h_taken_by_text
 
-    def _palette_blend(self, saturation, dtype='uint8'):
-        saturation = float(saturation)
-        palette = []
-        for i in range(7):
-            rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
-            rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
-            if dtype == 'uint8':
-                palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
-            if dtype == 'uint24':
-                palette += [(int(rs + rd) << 16) | (int(gs + gd) << 8) | int(bs + bd)]
-        if dtype == 'uint8':
-            palette += [255, 255, 255]
-        if dtype == 'uint24':
-            palette += [0xffffff]
-        return palette
-
-    def _convert_image(self, image, saturation=0.5):
-        """Copy an image to the display.
-
-        :param image: PIL image to copy, must be 600x448
-        :param saturation: Saturation for quantization palette - higher value results in a more saturated image
-
-        """
-        if not image.size == (self.config.getint('DEFAULT', 'width'), self.config.getint('DEFAULT', 'height')):
-            raise ValueError("Image must be ({}x{}) pixels!".format(self.config.getint('DEFAULT', 'width'), self.config.getint('DEFAULT', 'height')))
-        if not image.mode == "P":
-            if Image is None:
-                raise RuntimeError("PIL is required for converting images: sudo apt install python-pil python3-pil")
-            palette = self._palette_blend(saturation)
-            # Image size doesn't matter since it's just the palette we're using
-            palette_image = Image.new("P", (1, 1))
-            # Set our 7 colour palette (+ clear) and zero out the other 247 colours
-            palette_image.putpalette(palette + [0, 0, 0] * 248)
-            # Force source image data to be loaded for `.im` to work
-            image.load()
-            image = image.im.convert("P", True, palette_image.im)
-            self.logger.info(f'image type: {image}')
-        return image
-
     def _display_clean(self):
         """cleans the display
         """
@@ -205,8 +145,7 @@ class SpotipiEinkDisplay:
         try:
             epd = epd4in01f.EPD()
             epd.init()
-            image_convert = self._convert_image(image, saturation=saturation)
-            epd.display(epd.getbuffer(image_convert))
+            epd.display(epd.getbuffer(image, saturation))
         except Exception as e:
             self.logger.error(f'Display image error: {e}')
 
