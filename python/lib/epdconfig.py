@@ -6,14 +6,18 @@
 # *----------------
 # * | This version:   V1.2
 # * | Date        :   2022-10-29
-# * | Info        :   
+# * | Info        :
+# *----------------
+# * | This version:   V1.3
+# * | Date        :   2023-10-22
+# * | Info        :   fixed formatting error added log to root logger
 # ******************************************************************************
 # Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documnetation files (the "Software"), to deal
+# of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to  whom the Software is
-# furished to do so, subject to the following conditions:
+# furnished to do so, subject to the following conditions:
 #
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
@@ -34,21 +38,20 @@ import logging
 import sys
 import time
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 
 class RaspberryPi:
     # Pin definition
-    RST_PIN  = 17
-    DC_PIN   = 25
-    CS_PIN   = 8
+    RST_PIN = 17
+    DC_PIN = 25
+    CS_PIN = 8
     BUSY_PIN = 24
-    PWR_PIN  = 18
+    PWR_PIN = 18
 
     def __init__(self):
         import spidev
         import RPi.GPIO
-
         self.GPIO = RPi.GPIO
         self.SPI = spidev.SpiDev()
 
@@ -75,7 +78,6 @@ class RaspberryPi:
         self.GPIO.setup(self.CS_PIN, self.GPIO.OUT)
         self.GPIO.setup(self.PWR_PIN, self.GPIO.OUT)
         self.GPIO.setup(self.BUSY_PIN, self.GPIO.IN)
-        
         self.GPIO.output(self.PWR_PIN, 1)
 
         # SPI device, bus = 0, device = 0
@@ -87,22 +89,20 @@ class RaspberryPi:
     def module_exit(self):
         logger.debug("spi end")
         self.SPI.close()
-
         logger.debug("close 5V, Module enters 0 power consumption ...")
         self.GPIO.output(self.RST_PIN, 0)
         self.GPIO.output(self.DC_PIN, 0)
         self.GPIO.output(self.PWR_PIN, 0)
-
         self.GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN, self.PWR_PIN])
 
 
 class JetsonNano:
     # Pin definition
-    RST_PIN  = 17
-    DC_PIN   = 25
-    CS_PIN   = 8
+    RST_PIN = 17
+    DC_PIN = 25
+    CS_PIN = 8
     BUSY_PIN = 24
-    PWR_PIN  = 18
+    PWR_PIN = 18
 
     def __init__(self):
         import ctypes
@@ -119,7 +119,6 @@ class JetsonNano:
                 break
         if self.SPI is None:
             raise RuntimeError('Cannot find sysfs_software_spi.so')
-
         import Jetson.GPIO
         self.GPIO = Jetson.GPIO
 
@@ -147,37 +146,32 @@ class JetsonNano:
         self.GPIO.setup(self.CS_PIN, self.GPIO.OUT)
         self.GPIO.setup(self.PWR_PIN, self.GPIO.OUT)
         self.GPIO.setup(self.BUSY_PIN, self.GPIO.IN)
-        
         self.GPIO.output(self.PWR_PIN, 1)
-        
         self.SPI.SYSFS_software_spi_begin()
         return 0
 
     def module_exit(self):
         logger.debug("spi end")
         self.SPI.SYSFS_software_spi_end()
-
         logger.debug("close 5V, Module enters 0 power consumption ...")
         self.GPIO.output(self.RST_PIN, 0)
         self.GPIO.output(self.DC_PIN, 0)
         self.GPIO.output(self.PWR_PIN, 0)
-
         self.GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN, self.PWR_PIN])
 
 
 class SunriseX3:
     # Pin definition
-    RST_PIN  = 17
-    DC_PIN   = 25
-    CS_PIN   = 8
+    RST_PIN = 17
+    DC_PIN = 25
+    CS_PIN = 8
     BUSY_PIN = 24
-    PWR_PIN  = 18
-    Flag     = 0
+    PWR_PIN = 18
+    Flag = 0
 
     def __init__(self):
         import spidev
         import Hobot.GPIO
-
         self.GPIO = Hobot.GPIO
         self.SPI = spidev.SpiDev()
 
@@ -208,9 +202,7 @@ class SunriseX3:
             self.GPIO.setup(self.CS_PIN, self.GPIO.OUT)
             self.GPIO.setup(self.PWR_PIN, self.GPIO.OUT)
             self.GPIO.setup(self.BUSY_PIN, self.GPIO.IN)
-
             self.GPIO.output(self.PWR_PIN, 1)
-        
             # SPI device, bus = 0, device = 0
             self.SPI.open(2, 0)
             self.SPI.max_speed_hz = 4000000
@@ -222,20 +214,17 @@ class SunriseX3:
     def module_exit(self):
         logger.debug("spi end")
         self.SPI.close()
-
         logger.debug("close 5V, Module enters 0 power consumption ...")
         self.Flag = 0
         self.GPIO.output(self.RST_PIN, 0)
         self.GPIO.output(self.DC_PIN, 0)
         self.GPIO.output(self.PWR_PIN, 0)
-
         self.GPIO.cleanup([self.RST_PIN, self.DC_PIN, self.CS_PIN, self.BUSY_PIN], self.PWR_PIN)
 
 
 def is_raspberry_pi():
     # https://raspberrypi.stackexchange.com/a/139704/540
     CPUINFO_PATH = Path("/proc/cpuinfo")
-
     if not CPUINFO_PATH.exists():
         return False
     with open(CPUINFO_PATH) as f:
@@ -252,5 +241,3 @@ else:
 
 for func in [x for x in dir(implementation) if not x.startswith('_')]:
     setattr(sys.modules[__name__], func, getattr(implementation, func))
-
-### END OF FILE ###

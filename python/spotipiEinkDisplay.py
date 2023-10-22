@@ -347,7 +347,7 @@ class SpotipiEinkDisplay:
     def start(self):
         self.logger.info('Service started')
         # clean screen initially
-        #self._display_clean()
+        self._display_clean()
         try:
             while True:
                 try:
