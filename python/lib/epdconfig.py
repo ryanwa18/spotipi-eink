@@ -27,6 +27,7 @@
 # THE SOFTWARE.
 #
 
+from pathlib import Path
 import re
 import os
 import logging
