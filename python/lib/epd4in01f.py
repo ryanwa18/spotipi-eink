@@ -34,7 +34,6 @@
 #
 
 import logging
-from PIL import Image
 from . import epdconfig
 
 # Display resolution
@@ -45,26 +44,6 @@ logger = logging.getLogger()
 
 
 class EPD:
-    DESATURATED_PALETTE = [
-        [0, 0, 0],
-        [255, 255, 255],
-        [0, 255, 0],
-        [0, 0, 255],
-        [255, 0, 0],
-        [255, 255, 0],
-        [255, 140, 0],
-        [255, 255, 255]]
-
-    SATURATED_PALETTE = [
-        [57, 48, 57],
-        [255, 255, 255],
-        [58, 91, 70],
-        [61, 59, 94],
-        [156, 72, 75],
-        [208, 190, 71],
-        [177, 106, 73],
-        [255, 255, 255]]
-
     def __init__(self):
         self.reset_pin = epdconfig.RST_PIN
         self.dc_pin = epdconfig.DC_PIN
@@ -79,22 +58,6 @@ class EPD:
         self.RED = 0x0000ff  # 0100
         self.YELLOW = 0x00ffff  # 0101
         self.ORANGE = 0x0080ff  # 0110
-
-    def _palette_blend(self, saturation, dtype='uint8'):
-        saturation = float(saturation)
-        palette = []
-        for i in range(7):
-            rs, gs, bs = [c * saturation for c in self.SATURATED_PALETTE[i]]
-            rd, gd, bd = [c * (1.0 - saturation) for c in self.DESATURATED_PALETTE[i]]
-            if dtype == 'uint8':
-                palette += [int(rs + rd), int(gs + gd), int(bs + bd)]
-            if dtype == 'uint24':
-                palette += [(int(rs + rd) << 16) | (int(gs + gd) << 8) | int(bs + bd)]
-        if dtype == 'uint8':
-            palette += [255, 255, 255]
-        if dtype == 'uint24':
-            palette += [0xffffff]
-        return palette
 
     # Hardware reset
     def reset(self):
@@ -176,14 +139,7 @@ class EPD:
         buf = [0x00] * int(self.width * self.height / 2)
         image_monocolor = image.convert('RGB')  # Picture mode conversion
         imwidth, imheight = image_monocolor.size
-        palette = self._palette_blend(saturation)
-        # Image size doesn't matter since it's just the palette we're using
-        palette_image = Image.new("P", (1, 1))
-        # Set our 7 colour palette (+ clear) and zero out the other 247 colours
-        palette_image.putpalette(palette + [0, 0, 0] * 248)
         pixels = image_monocolor.load()
-        pixels = pixels.im.convert("P", True, palette_image.im)
-        logger.debug('imwidth = %d  imheight =  %d ', imwidth, imheight)
         if (imwidth == self.width and imheight == self.height):
             for y in range(imheight):
                 for x in range(imwidth):

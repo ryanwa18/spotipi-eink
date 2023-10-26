@@ -9,7 +9,7 @@ import traceback
 import configparser
 import requests
 import signal
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageEnhance
 from lib import epd4in01f
 
 
@@ -134,6 +134,44 @@ class SpotipiEinkDisplay:
             epd.Clear()
         except Exception as e:
             self.logger.error(f'Display clean error: {e}')
+            self.logger.error(traceback.format_exc())
+    
+    # from https://stackoverflow.com/questions/29433243/convert-image-to-specific-palette-using-pil-without-dithering
+    def _quantizetopalette(self, silf, palette, dither=False):
+        '''Convert an RGB or L mode image to use a given P image's palette.'''
+        silf.load()
+        palette.load()
+        if palette.mode != 'P':
+            raise ValueError('bad mode for palette image')
+        if silf.mode != 'RGB' and silf.mode != 'L':
+            raise ValueError('only RGB or L mode images can be quantized to a palette')
+        im = silf.im.convert('P', 1 if dither else 0, palette.im)
+        try:
+            return silf._new(im)
+        except AttributeError:
+            return silf._makeself(im)
+
+    def _convert_image_wave(self, img: Image) -> Image:
+        # blow out the saturation
+        converter = ImageEnhance.Color(img)
+        img = converter.enhance(2)
+         
+        # dither to 7-color palette
+        palettedata = [0x00, 0x00, 0x00,
+                    0xff, 0xff, 0xff,
+                    0x00, 0xff, 0x00,
+                    0x00, 0x00, 0xff,
+                    0xff, 0x00, 0x00,
+                    0xff, 0xff, 0x00,
+                    0xff, 0x80, 0x00,
+                    ]
+        for _ in range(0, 249 * 3):
+            palettedata.append(0)
+        palimage = Image.new('P', (1, 1))
+        palimage.putpalette(palettedata)
+        newimage = self._quantizetopalette(img, palimage, dither=True)
+        return newimage
+
 
     def _display_image(self, image: Image, saturation: float = 0.5):
         """displays a image on the inky display
@@ -145,9 +183,11 @@ class SpotipiEinkDisplay:
         try:
             epd = epd4in01f.EPD()
             epd.init()
-            epd.display(epd.getbuffer(image, saturation))
+            #image1 = image.resize((320, 200))
+            epd.display(epd.getbuffer(self._convert_image_wave(image), saturation))
         except Exception as e:
             self.logger.error(f'Display image error: {e}')
+            self.logger.error(traceback.format_exc())
 
     def _gen_pic(self, image: Image, artist: str, title: str) -> Image:
         """Generates the Picture for the display
@@ -286,7 +326,7 @@ class SpotipiEinkDisplay:
     def start(self):
         self.logger.info('Service started')
         # clean screen initially
-        self._display_clean()
+        # self._display_clean()
         try:
             while True:
                 try:
