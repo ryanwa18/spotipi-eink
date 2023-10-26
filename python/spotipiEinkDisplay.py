@@ -169,7 +169,7 @@ class SpotipiEinkDisplay:
         try:
             epd = epd4in01f.EPD()
             epd.init()
-            epd.display(epd.getbuffer(self._convert_image_wave(image), saturation))
+            epd.display(epd.getbuffer(self._convert_image_wave(image)))
         except Exception as e:
             self.logger.error(f'Display image error: {e}')
             self.logger.error(traceback.format_exc())

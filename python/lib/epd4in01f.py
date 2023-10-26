@@ -135,7 +135,7 @@ class EPD:
         # EPD hardware init end
         return 0
 
-    def getbuffer(self, image, saturation=0.5):
+    def getbuffer(self, image):
         buf = [0x00] * int(self.width * self.height / 2)
         image_monocolor = image.convert('RGB')  # Picture mode conversion
         imwidth, imheight = image_monocolor.size
