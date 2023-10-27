@@ -264,7 +264,7 @@ class SpotipiEinkDisplay:
         Returns:
             list: with song name, album cover url, artist's name's
         """
-        scope = 'user-read-currently-playing,user-modify-playback-state,user-library-read'
+        scope = 'user-read-currently-playing,user-modify-playback-state'
         token = util.prompt_for_user_token(username=self.config.get('DEFAULT', 'username'), scope=scope, cache_path=self.config.get('DEFAULT', 'token_file'))
         if token:
             sp = spotipy.Spotify(auth=token)
