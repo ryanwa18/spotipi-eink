@@ -49,27 +49,28 @@ bash setup.sh
 
 After the spotipi-eink is installed you have 2 systemd services:
 * spotipi-eink-display.service
-* spotipi-eink-buttons.service
+* spotipi-eink-buttons.service (only for Pimoroni displays)
 
 This services run as the user with that you executed the setup.sh.
 
 You control the services via systemctl **start, stop, status** *(services-name)*. Example get the status of *spotipi-eink-display.service*:
 ```
-spotipi@spotipi:~/spotipi-eink/config $ sudo systemctl status spotipi-eink-display.service
+spotipi@spotipi:~ $ sudo systemctl status spotipi-eink-display.service
 ● spotipi-eink-display.service - Spotipi eInk Display service
      Loaded: loaded (/etc/systemd/system/spotipi-eink-display.service; enabled; preset: enabled)
     Drop-In: /etc/systemd/system/spotipi-eink-display.service.d
              └─spotipi-eink-display_env.conf
-     Active: active (running) since Sat 2023-10-14 00:03:26 CEST; 4min 6s ago
-   Main PID: 8910 (python3)
+     Active: active (running) since Tue 2023-10-31 09:30:05 CET; 27min ago
+   Main PID: 4108 (python3)
       Tasks: 1 (limit: 383)
-        CPU: 43.021s
+        CPU: 5min 13.455s
      CGroup: /system.slice/spotipi-eink-display.service
-             └─8910 /home/spotipi/spotipi-eink/spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/spotipiEinkDisplay.py
+             └─4108 /home/spotipi/spotipi-eink/spotipienv/bin/python3 /home/spotipi/spotipi-eink/python/spotipiEinkDisplay.py
 
-Oct 14 00:03:26 spotipi systemd[1]: Started spotipi-eink-display.service - Spotipi eInk Display service.
-Oct 14 00:03:28 spotipi spotipi-eink-display[8910]: Spotipi eInk Display - Service instance created
-Oct 14 00:03:28 spotipi spotipi-eink-display[8910]: Spotipi eInk Display - Service started
+Oct 31 09:30:05 spotipi systemd[1]: Started spotipi-eink-display.service - Spotipi eInk Display service.
+Oct 31 09:30:06 spotipi spotipi-eink-display[4108]: Spotipi eInk Display - Service instance created
+Oct 31 09:30:07 spotipi spotipi-eink-display[4108]: Spotipi eInk Display - Loading Pimoroni inky lib
+Oct 31 09:30:07 spotipi spotipi-eink-display[4108]: Spotipi eInk Display - Service started
 ```
 
 With the latest Raspberry PI OS **Bookworm** you have no more */var/log/syslog* you have to use *journalctl*. To view the *spotipi-eink-display.service* and *spotipi-eink-buttons.service* logs use the following command:
@@ -118,6 +119,8 @@ Example config:
 width = 640
 height = 400
 album_cover_small_px = 200
+; possible values are inky or waveshare4
+model = inky
 ; disable smaller album cover set to False
 ; if disabled top offset is still calculated like as the following:
 ; offset_px_top + album_cover_small_px
