@@ -3,21 +3,21 @@ if [[ $EUID -eq 0 ]]; then
   echo "This script must NOT be run as root" 1>&2
   exit 1
 fi
-echo "Update Packages list"
+echo "###### Update Packages list"
 sudo apt update
 echo
-echo "Update to the latest"
-sudo apt -y upgrade
+echo "###### Update to the latest"
+sudo apt upgrade -y
 echo
-echo "Ensure system packages are installed:"
-sudo apt-get install python3-pip python3-venv python3-numpy git libopenjp2-7
+echo "###### Ensure system packages are installed:"
+sudo apt-get install python3-pip python3-venv python3-numpy git libopenjp2-7 -y
 echo
 if [ -d "spotipi-eink" ]; then
     echo "Old installation found deleting it"
     sudo rm -rf spotipi-eink
 fi
 echo
-echo "Clone spotipy-eink git"
+echo "###### Clone spotipy-eink git"
 git clone https://github.com/Gabbajoe/spotipi-eink
 echo "Switching into instalation directory"
 cd spotipi-eink
@@ -71,30 +71,45 @@ if ! [ -d "${install_path}/resources" ]; then
 fi
 echo
 echo "###### Display setup"
-PS3="Please select your Inky Impression Model: "
-options=("Inky Impression 4 (640x400)" "Inky Impression 5.7 (600x448)" "Inky Impression 7.3 (800x480)")
+PS3="Please select your Display Model: "
+options=("Pimoroni Inky Impression 4 (640x400)" "Waveshare 4.01inch ACeP 4 (640x400)" "Pimoroni Inky Impression 5.7 (600x448)" "Pimoroni Inky Impression 7.3 (800x480)")
 select opt in "${options[@]}"
 do
     case $opt in
-        "Inky Impression 4 (640x400)")
+        "Pimoroni Inky Impression 4 (640x400)")
             echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
             echo "width = 640" >> ${install_path}/config/eink_options.ini
             echo "height = 400" >> ${install_path}/config/eink_options.ini
             echo "album_cover_small_px = 200" >> ${install_path}/config/eink_options.ini
+            echo "model = inky" >> ${install_path}/config/eink_options.ini
+            export BUTTONS=1
             break
             ;;
-        "Inky Impression 5.7 (600x448)")
+        "Waveshare 4.01inch ACeP 4 (640x400)")
+            echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
+            echo "width = 640" >> ${install_path}/config/eink_options.ini
+            echo "height = 400" >> ${install_path}/config/eink_options.ini
+            echo "album_cover_small_px = 200" >> ${install_path}/config/eink_options.ini
+            echo "model = waveshare4" >> ${install_path}/config/eink_options.ini
+            export BUTTONS=0
+            break
+            ;;
+        "Pimoroni Inky Impression 5.7 (600x448)")
             echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
             echo "width = 600" >> ${install_path}/config/eink_options.ini
             echo "height = 448" >> ${install_path}/config/eink_options.ini
             echo "album_cover_small_px = 250" >> ${install_path}/config/eink_options.ini
+            echo "model = inky" >> ${install_path}/config/eink_options.ini
+            export BUTTONS=1
             break
             ;;
-        "Inky Impression 7.3 (800x480)")
+        "Pimoroni Inky Impression 7.3 (800x480)")
             echo "[DEFAULT]" >> ${install_path}/config/eink_options.ini
             echo "width = 800" >> ${install_path}/config/eink_options.ini
             echo "height = 480" >> ${install_path}/config/eink_options.ini
             echo "album_cover_small_px = 300" >> ${install_path}/config/eink_options.ini
+            echo "model = inky" >> ${install_path}/config/eink_options.ini
+            export BUTTONS=1
             break
             ;;
         *)
@@ -166,34 +181,38 @@ sudo systemctl start spotipi-eink-display
 sudo systemctl enable spotipi-eink-display
 echo "...done"
 echo
-echo "###### Spotipi-eink button action service installation"
-echo
-if [ -f "/etc/systemd/system/spotipi-eink-buttons.service" ]; then
+if [ "$BUTTONS" -eq "1" ]; then
+    echo "###### Spotipi-eink button action service installation"
     echo
-    echo "Removing old spotipi-eink-buttons service:"
-    sudo systemctl stop spotipi-eink-buttons
-    sudo systemctl disable spotipi-eink-buttons
-    sudo rm -rf /etc/systemd/system/spotipi-eink-buttons.*
+    if [ -f "/etc/systemd/system/spotipi-eink-buttons.service" ]; then
+        echo
+        echo "Removing old spotipi-eink-buttons service:"
+        sudo systemctl stop spotipi-eink-buttons
+        sudo systemctl disable spotipi-eink-buttons
+        sudo rm -rf /etc/systemd/system/spotipi-eink-buttons.*
+        sudo systemctl daemon-reload
+        echo "...done"
+    fi
+    echo
+    echo "Creating spotipi-eink-buttons service:"
+    sudo cp "${install_path}/setup/service_template/spotipi-eink-buttons.service" /etc/systemd/system/
+    sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipienv/bin/python3 ${install_path}/python/buttonActions.py" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo sed -i -e "/ExecStart/a WorkingDirectory=${install_path}" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
+    sudo mkdir /etc/systemd/system/spotipi-eink-buttons.service.d
+    spotipi_buttons_env_path=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
+    sudo touch $spotipi_buttons_env_path
+    echo "[Service]" | sudo tee -a $spotipi_buttons_env_path > /dev/null
+    echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
+    echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
+    echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
     sudo systemctl daemon-reload
+    sudo systemctl start spotipi-eink-buttons
+    sudo systemctl enable spotipi-eink-buttons
     echo "...done"
+else
+    echo "###### Skipping Spotipi-eink button action service installation"
 fi
-echo
-echo "Creating spotipi-eink-buttons service:"
-sudo cp "${install_path}/setup/service_template/spotipi-eink-buttons.service" /etc/systemd/system/
-sudo sed -i -e "/\[Service\]/a ExecStart=${install_path}/spotipienv/bin/python3 ${install_path}/python/buttonActions.py" /etc/systemd/system/spotipi-eink-buttons.service
-sudo sed -i -e "/ExecStart/a WorkingDirectory=${install_path}" /etc/systemd/system/spotipi-eink-buttons.service
-sudo sed -i -e "/EnvironmentFile/a User=${UID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
-sudo sed -i -e "/User/a Group=${GID_TO_USE}" /etc/systemd/system/spotipi-eink-buttons.service
-sudo mkdir /etc/systemd/system/spotipi-eink-buttons.service.d
-spotipi_buttons_env_path=/etc/systemd/system/spotipi-eink-buttons.service.d/spotipi-eink-buttons_env.conf
-sudo touch $spotipi_buttons_env_path
-echo "[Service]" | sudo tee -a $spotipi_buttons_env_path > /dev/null
-echo "Environment=\"SPOTIPY_CLIENT_ID=${spotify_client_id}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
-echo "Environment=\"SPOTIPY_CLIENT_SECRET=${spotify_client_secret}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
-echo "Environment=\"SPOTIPY_REDIRECT_URI=${spotify_redirect_uri}\"" | sudo tee -a $spotipi_buttons_env_path > /dev/null
-sudo systemctl daemon-reload
-sudo systemctl start spotipi-eink-buttons
-sudo systemctl enable spotipi-eink-buttons
-echo "...done"
 echo
 echo "SETUP IS COMPLETE"

@@ -2,15 +2,31 @@ import time
 import sys
 import logging
 from logging.handlers import RotatingFileHandler
-from getSongInfo import getSongInfo
+import spotipy
+import spotipy.util as util
 import os
 import traceback
 import configparser
 import requests
 import signal
-from PIL import Image, ImageDraw, ImageFont, ImageOps
-from inky.auto import auto
-from inky.inky_uc8159 import CLEAN
+from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageEnhance
+
+
+# recursion limiter for get song info to not go to infinity as decorator
+def limit_recursion(limit):
+    def inner(func):
+        func.count = 0
+
+        def wrapper(*args, **kwargs):
+            func.count += 1
+            if func.count < limit:
+                result = func(*args, **kwargs)
+            else:
+                result = None
+            func.count -= 1
+            return result
+        return wrapper
+    return inner
 
 
 class SpotipiEinkDisplay:
@@ -21,7 +37,7 @@ class SpotipiEinkDisplay:
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(os.path.dirname(__file__), '..', 'config', 'eink_options.ini'))
         # set spotipoy lib logger
-        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S %p', filename=self.config.get('DEFAULT', 'spotipy_log'), level=logging.INFO)
+        logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', filename=self.config.get('DEFAULT', 'spotipy_log'), level=logging.INFO)
         logger = logging.getLogger('spotipy_logger')
         # automatically deletes logs more than 2000 bytes
         handler = RotatingFileHandler(self.config.get('DEFAULT', 'spotipy_log'), maxBytes=2000, backupCount=3)
@@ -31,12 +47,22 @@ class SpotipiEinkDisplay:
         self.pic_counter = 0
         self.logger = self._init_logger()
         self.logger.info('Service instance created')
+        if self.config.get('DEFAULT', 'model') == 'inky':
+            from inky.auto import auto
+            from inky.inky_uc8159 import CLEAN
+            self.inky_auto = auto
+            self.inky_clean = CLEAN
+            self.logger.info('Loading Pimoroni inky lib')
+        if self.config.get('DEFAULT', 'model') == 'waveshare4':
+            from lib import epd4in01f
+            self.wave4 = epd4in01f
+            self.logger.info('Loading Waveshare 4" lib')
 
     def _init_logger(self):
         logger = logging.getLogger(__name__)
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
         stdout_handler = logging.StreamHandler()
-        stdout_handler.setLevel(logging.INFO)
+        stdout_handler.setLevel(logging.DEBUG)
         stdout_handler.setFormatter(logging.Formatter('Spotipi eInk Display - %(message)s'))
         logger.addHandler(stdout_handler)
         return logger
@@ -112,16 +138,45 @@ class SpotipiEinkDisplay:
         """cleans the display
         """
         try:
-            inky = auto()
-            for _ in range(2):
-                for y in range(inky.height - 1):
-                    for x in range(inky.width - 1):
-                        inky.set_pixel(x, y, CLEAN)
+            if self.config.get('DEFAULT', 'model') == 'inky':
+                inky = self.inky_auto()
+                for _ in range(2):
+                    for y in range(inky.height - 1):
+                        for x in range(inky.width - 1):
+                            inky.set_pixel(x, y, self.inky_clean)
 
-                inky.show()
-                time.sleep(1.0)
+                    inky.show()
+                    time.sleep(1.0)
+            if self.config.get('DEFAULT', 'model') == 'waveshare4':
+                epd = self.wave4.EPD()
+                epd.init()
+                epd.Clear()
         except Exception as e:
             self.logger.error(f'Display clean error: {e}')
+            self.logger.error(traceback.format_exc())
+
+    def _convert_image_wave(self, img: Image, saturation: int = 2) -> Image:
+        # blow out the saturation
+        converter = ImageEnhance.Color(img)
+        img = converter.enhance(saturation)
+        # dither to 7-color palette
+        palette_data = [0x00, 0x00, 0x00,
+                        0xff, 0xff, 0xff,
+                        0x00, 0xff, 0x00,
+                        0x00, 0x00, 0xff,
+                        0xff, 0x00, 0x00,
+                        0xff, 0xff, 0x00,
+                        0xff, 0x80, 0x00]
+        # Image size doesn't matter since it's just the palette we're using
+        palette_image = Image.new('P', (1, 1))
+        # Set our 7 color palette (+ clear) and zero out the other 247 colors
+        palette_image.putpalette(palette_data + [0, 0, 0] * 248)
+        # Force source image and palette data to be loaded for `.im` to work
+        img.load()
+        palette_image.load()
+        im = img.im.convert('P', True, palette_image.im)
+        # create the new 7 color image and return it
+        return img._new(im)
 
     def _display_image(self, image: Image, saturation: float = 0.5):
         """displays a image on the inky display
@@ -131,11 +186,18 @@ class SpotipiEinkDisplay:
             saturation (float, optional): saturation. Defaults to 0.5.
         """
         try:
-            inky = auto()
-            inky.set_image(image, saturation=saturation)
-            inky.show()
+            if self.config.get('DEFAULT', 'model') == 'inky':
+                inky = self.inky_auto()
+                inky.set_image(image, saturation=saturation)
+                inky.show()
+            if self.config.get('DEFAULT', 'model') == 'waveshare4':
+                epd = self.wave4.EPD()
+                epd.init()
+                epd.display(epd.getbuffer(self._convert_image_wave(image)))
+                epd.sleep()
         except Exception as e:
-            self.logger.error(f'Display screenshot error: {e}')
+            self.logger.error(f'Display image error: {e}')
+            self.logger.error(traceback.format_exc())
 
     def _gen_pic(self, image: Image, artist: str, title: str) -> Image:
         """Generates the Picture for the display
@@ -218,8 +280,58 @@ class SpotipiEinkDisplay:
             self.pic_counter = 0
         # display picture on display
         self._display_image(image)
-        # image.save('test_pic.png')
         self.pic_counter += 1
+
+    @limit_recursion(limit=10)
+    def _get_song_info(self) -> list:
+        """get the current played song from Spotifys Web API
+
+        Returns:
+            list: with song name, album cover url, artist's name's
+        """
+        scope = 'user-read-currently-playing,user-modify-playback-state'
+        token = util.prompt_for_user_token(username=self.config.get('DEFAULT', 'username'), scope=scope, cache_path=self.config.get('DEFAULT', 'token_file'))
+        if token:
+            sp = spotipy.Spotify(auth=token)
+            result = sp.currently_playing(additional_types='episode')
+            if result:
+                try:
+                    if result['currently_playing_type'] == 'episode':
+                        song = result["item"]["name"]
+                        artist_name = result["item"]["show"]["name"]
+                        song_pic_url = result["item"]["images"][0]["url"]
+                        return [song, song_pic_url, artist_name]
+                    if result['currently_playing_type'] == 'track':
+                        song = result["item"]["name"]
+                        artist_name = ''
+                        for artists_tmp in result["item"]["artists"]:
+                            if artist_name:
+                                artist_name += ', '
+                            artist_name += artists_tmp["name"]
+                        song_pic_url = result["item"]["album"]["images"][0]["url"]
+                        return [song, song_pic_url, artist_name]
+                    if result['currently_playing_type'] == 'unknown':
+                        # we hit the moment when spotify api has no known state about the client
+                        # simply lets retry a short moment again
+                        time.sleep(0.01)
+                        return self._get_song_info()
+                    if result['currently_playing_type'] == 'ad':
+                        # a ad is playing.. lets say no song is playing....
+                        return []
+                    # we should never hit this
+                    self.logger.error(f'Error: Unsupported currently_playing_type: {result["currently_playing_type"]}')
+                    self.logger.error(f'Error: Spotify currently_playing result content: {result}')
+                except TypeError:
+                    # https://stackoverflow.com/questions/69253296/spotipy-typeerror-nonetype-object-is-not-subscriptable-when-trying-to-acce
+                    # catch this error and simply try again.
+                    # try to get it again a short amount of time later
+                    self.logger.error('Error: TypeError')
+                    time.sleep(0.01)
+                    return self._get_song_info()
+            return []
+        else:
+            self.logger.error(f"Error: Can't get token for {self.config.get('DEFAULT', 'username')}")
+            return []
 
     def start(self):
         self.logger.info('Service started')
@@ -228,7 +340,7 @@ class SpotipiEinkDisplay:
         try:
             while True:
                 try:
-                    song_request = getSongInfo(self.config.get('DEFAULT', 'username'), self.config.get('DEFAULT', 'token_file'))
+                    song_request = self._get_song_info()
                     if song_request:
                         if self.song_prev != song_request[0] + song_request[1]:
                             self.song_prev = song_request[0] + song_request[1]
