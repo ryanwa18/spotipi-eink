@@ -5,15 +5,15 @@ Table of Content
   - [Overview](#overview)
   - [Getting Started](#getting-started)
   - [Configuration](#configuration)
-  - [Components](#components)
+  - [Supported Hardware](#supported-hardware)
   - [Software](#software)
   - [3D printing](#3d-printing)
     - [Free cases](#free-cases)
     - [None free cases from Pimoroni](#none-free-cases-from-pimoroni)
   - [Show case](#show-case)
 ## Overview
-This project is to display information on a 4", 5.7" or 7,3" e-ink from the Spotify web api.</br>
-Let you control via the 4 Buttons you Spotify player.</br>
+This project is to display information on a 4", 5.7" or 7,3" e-ink display from the Spotify web api.</br>
+Let you control via the 4 Buttons on the Pimoroni Display your Spotify playback.</br>
 Project [Youtube Video](https://www.youtube.com/watch?v=uQYIAYa27ds) from [Ryan Ward ](https://github.com/ryanwa18)
 
 Button functions:
@@ -21,6 +21,10 @@ Button functions:
 * Button B - previous track
 * Button C - play/pause
 * Button D - toggle repeat order: track, context(playlist), off
+
+I is recommendation to use Raspberry Pi Zero 2.
+
+The display refresh time is ~30 seconds.
 
 ## Getting Started
 * Create a new application within the [Spotify developer dashboard](https://developer.spotify.com/dashboard/applications)
@@ -139,11 +143,13 @@ text_direction = bottom-up
 background_mode = fit
 ```
 
-## Components
+## Supported Hardware
 * [Raspberry Pi Zero 2](https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/)
-* [Inky Impression 4"](https://shop.pimoroni.com/products/inky-impression-4?variant=39599238807635)
-* [Inky Impression 5.7"](https://shop.pimoroni.com/products/inky-impression-5-7?variant=32298701324371)
-* [Inky Impression 7.3"](https://shop.pimoroni.com/products/inky-impression-7-3?variant=40512683376723)
+* [Pimoroni Inky Impression 4"](https://shop.pimoroni.com/products/inky-impression-4?variant=39599238807635)
+* [Waveshare 4.01inch ACeP 7-Color E-Paper E-Ink Display HAT](https://www.waveshare.com/product/displays/e-paper/epaper-2/4.01inch-e-paper-hat-f.htm)
+* [Pimoroni Inky Impression 5.7"](https://shop.pimoroni.com/products/inky-impression-5-7?variant=32298701324371)
+* [Pimoroni Inky Impression 7.3"](https://shop.pimoroni.com/products/inky-impression-7-3?variant=40512683376723)
+
 
 ## Software
 * [Raspberry Pi Imager](https://www.raspberrypi.com/software/)
@@ -161,6 +167,6 @@ background_mode = fit
 * [Enclosure for pimoroni Inky Impression (ePaper/eInk/EPD) and raspberry pi zero](https://cults3d.com/en/3d-model/gadget/enclosure-for-pimoroni-inky-impression-epaper-eink-epd-and-raspberry-pi-zero)
 
 ## Show case
-Example picutre of my 4" display in the Pimoroni Desktop case:
+Example picture of my 4" display in the Pimoroni Desktop case:
 ![spotipi-eink Logo](/images/example.jpg)
 ![spotipi-eink Logo](/images/no_song.jpg)

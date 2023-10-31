@@ -10,7 +10,6 @@ import configparser
 import requests
 import signal
 from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageEnhance
-from lib import epd4in01f
 
 
 # recursion limiter for get song info to not go to infinity as decorator
@@ -48,6 +47,16 @@ class SpotipiEinkDisplay:
         self.pic_counter = 0
         self.logger = self._init_logger()
         self.logger.info('Service instance created')
+        if self.config.get('DEFAULT', 'model') == 'inky':
+            from inky.auto import auto
+            from inky.inky_uc8159 import CLEAN
+            self.inky_auto = auto
+            self.inky_clean = CLEAN
+            self.logger.info('Loading Pimoroni inky lib')
+        if self.config.get('DEFAULT', 'model') == 'waveshare4':
+            from lib import epd4in01f
+            self.wave4 = epd4in01f
+            self.logger.info('Loading Waveshare 4" lib')
 
     def _init_logger(self):
         logger = logging.getLogger(__name__)
@@ -129,9 +138,19 @@ class SpotipiEinkDisplay:
         """cleans the display
         """
         try:
-            epd = epd4in01f.EPD()
-            epd.init()
-            epd.Clear()
+            if self.config.get('DEFAULT', 'model') == 'inky':
+                inky = self.inky_auto()
+                for _ in range(2):
+                    for y in range(inky.height - 1):
+                        for x in range(inky.width - 1):
+                            inky.set_pixel(x, y, self.inky_clean)
+
+                    inky.show()
+                    time.sleep(1.0)
+            if self.config.get('DEFAULT', 'model') == 'waveshare4':
+                epd = self.wave4.EPD()
+                epd.init()
+                epd.Clear()
         except Exception as e:
             self.logger.error(f'Display clean error: {e}')
             self.logger.error(traceback.format_exc())
@@ -167,9 +186,15 @@ class SpotipiEinkDisplay:
             saturation (float, optional): saturation. Defaults to 0.5.
         """
         try:
-            epd = epd4in01f.EPD()
-            epd.init()
-            epd.display(epd.getbuffer(self._convert_image_wave(image)))
+            if self.config.get('DEFAULT', 'model') == 'inky':
+                inky = self.inky_auto()
+                inky.set_image(image, saturation=saturation)
+                inky.show()
+            if self.config.get('DEFAULT', 'model') == 'waveshare4':
+                epd = self.wave4.EPD()
+                epd.init()
+                epd.display(epd.getbuffer(self._convert_image_wave(image)))
+                epd.sleep()
         except Exception as e:
             self.logger.error(f'Display image error: {e}')
             self.logger.error(traceback.format_exc())
