@@ -245,7 +245,7 @@ class SpotipiEinkDisplay:
             image_new.paste(cover_smaller, [album_pos_x, offset_px_top])
         font_title = ImageFont.truetype(self.config.get('DEFAULT', 'font_path'), self.config.getint('DEFAULT', 'font_size_title'))
         font_artist = ImageFont.truetype(self.config.get('DEFAULT', 'font_path'), self.config.getint('DEFAULT', 'font_size_artist'))
-        if text_direction == 'topDown':
+        if text_direction == 'top-down':
             title_position_y = album_cover_small_px + offset_px_top + 10
             title_height = self._fit_text_top_down(img=image_new, text=title, text_color='white', shadow_text_color='black', font=font_title, font_size=self.config.getint('DEFAULT', 'font_size_title'), y_offset=title_position_y, x_start_offset=offset_px_left, x_end_offset=offset_px_right, offset_text_px_shadow=offset_text_px_shadow)
             artist_position_y = album_cover_small_px + offset_px_top + 10 + title_height
