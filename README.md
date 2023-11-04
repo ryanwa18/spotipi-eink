@@ -164,6 +164,7 @@ background_mode = fit
 * [Inky Impression 5.7" Frame](https://www.printables.com/de/model/603008-inky-impression-57-frame)
 * [Inky Impression 7.3 e-Paper frame/case](https://www.printables.com/de/model/585713-inky-impression-73-e-paper-framecase)
 * [Pimoroni 7 color EInk display Frame](https://www.thingiverse.com/thing:4666925)
+* [Spotipi-eink Waveshare 4 inch case](https://www.printables.com/model/634213-spotipi-eink-waveshare-4-inch-case)
 ### None free cases from Pimoroni
 * [Desktop Case for pimoroni Inky Impression 4" (7 colour ePaper/eInk HAT) and Raspberry Pi Zero/3 A+](https://cults3d.com/en/3d-model/gadget/desktop-case-for-pimoroni-inky-impression-4-7-colour-epaper-eink-hat-and-raspberry-pi-zero-3-a)
 * [Picture frame for pimoroni Inky Impression 5.7" (ePaper/eInk/EPD) and raspberry pi zero](https://cults3d.com/en/3d-model/gadget/picture-frame-for-pimoroni-inky-impression-epaper-eink-epd-and-raspberry-pi-zero)
