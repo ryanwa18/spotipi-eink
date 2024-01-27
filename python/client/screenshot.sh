@@ -1,10 +1,6 @@
 #!/bin/bash
 install_path=$1
-
-echo $install_path
-
-firefox --headless --screenshot --window-size=600,448 file://$install_path/python/client/spotipi.html
-
-sudo mv /screenshot.png $install_path/python/client/screenshot.png
-
-python $install_path/inky/examples/7color/image.py $install_path/python/client/screenshot.png
+res=$2
+#echo $install_path
+firefox --headless --screenshot /tmp/screenshot.png --window-size=$res file://$install_path/python/client/spotipi-eink.html
+python3 $install_path/inky/examples/7color/image.py /tmp/screenshot.png

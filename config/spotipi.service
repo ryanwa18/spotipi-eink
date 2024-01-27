@@ -1,13 +1,15 @@
 [Unit]
 Description=Spotipi led matrix service
+After=syslog.target network.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
-StandardOutput=syslog
-StandardError=syslog
 SyslogIdentifier=spotipi
 LimitRTPRIO=99
-Restart=always
-RestartSec=3
+Restart=on-failure
+RestartSec=3s
+KillSignal=SIGINT
 EnvironmentFile=/etc/systemd/system/spotipi.service.d/spotipi_env.conf
 
 [Install]
