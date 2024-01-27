@@ -9,4 +9,4 @@ if len(sys.argv) > 1:
 
     # This way removes the need for a browser, it will instead give the URL to visit in the terminal
     auth = SpotifyOAuth(scope=scope, open_browser=False)
-    token = auth.get_access_token()
+    token = auth.get_access_token(as_dict=False)
